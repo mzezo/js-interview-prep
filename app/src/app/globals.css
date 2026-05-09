@@ -1,0 +1,293 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────
+   Design tokens — matched to the reference
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --bg: #fafafa;
+  --bg-elevated: #ffffff;
+  --bg-subtle: #f3f4f6;
+
+  /* Borders */
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  /* Text */
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+
+  /* Brand / interactive */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-soft: #dbeafe;
+  --accent-text: #1e40af;
+
+  /* Status */
+  --status-not-started: #9ca3af;
+  --status-not-started-bg: #f3f4f6;
+
+  --status-studied: #3b82f6;
+  --status-studied-bg: #dbeafe;
+
+  --status-needs-review: #f59e0b;
+  --status-needs-review-bg: #fef3c7;
+
+  --status-mastered: #10b981;
+  --status-mastered-bg: #d1fae5;
+
+  /* Difficulty */
+  --difficulty-junior: #10b981;
+  --difficulty-mid: #3b82f6;
+  --difficulty-senior: #8b5cf6;
+
+  /* Senior insight callout */
+  --insight-bg: #fffbeb;
+  --insight-border: #f59e0b;
+  --insight-text: #92400e;
+
+  /* Code block */
+  --code-bg: #0d1117;
+  --code-text: #c9d1d9;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+}
+
+.dark {
+  --bg: #0a0a0a;
+  --bg-elevated: #161616;
+  --bg-subtle: #1f1f1f;
+
+  --border: #262626;
+  --border-strong: #404040;
+
+  --text: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-subtle: #6b7280;
+
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-soft: #1e3a8a;
+  --accent-text: #bfdbfe;
+
+  --status-not-started: #6b7280;
+  --status-not-started-bg: #1f1f1f;
+
+  --status-studied: #60a5fa;
+  --status-studied-bg: #1e3a8a;
+
+  --status-needs-review: #fbbf24;
+  --status-needs-review-bg: #78350f;
+
+  --status-mastered: #34d399;
+  --status-mastered-bg: #064e3b;
+
+  --insight-bg: #1c1917;
+  --insight-border: #d97706;
+  --insight-text: #fbbf24;
+
+  --code-bg: #050505;
+  --code-text: #e5e7eb;
+}
+
+/* Base */
+html {
+  background: var(--bg);
+  color: var(--text);
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 8px;
+  background: var(--accent);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 8px; }
+
+/* ─────────────────────────────────────────────────────────────────
+   Code block syntax highlighting (One Dark-ish, matches reference)
+   ───────────────────────────────────────────────────────────────── */
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Inline code */
+:not(pre) > code {
+  background: var(--bg-subtle);
+  color: #ec4899;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+
+.dark :not(pre) > code {
+  background: #2d1b3a;
+  color: #f9a8d4;
+}
+
+/* highlight.js — one-dark-style tokens for the code panels */
+.hljs-comment, .hljs-quote { color: #7d8590; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal { color: #ff7b72; }
+.hljs-string, .hljs-attr { color: #a5d6ff; }
+.hljs-number, .hljs-symbol { color: #79c0ff; }
+.hljs-title, .hljs-section, .hljs-name, .hljs-built_in { color: #d2a8ff; }
+.hljs-tag { color: #7ee787; }
+.hljs-variable, .hljs-template-variable { color: #ffa657; }
+.hljs-params { color: #ffa657; }
+.hljs-function .hljs-title { color: #d2a8ff; }
+.hljs-class .hljs-title { color: #ffa657; }
+
+/* ─────────────────────────────────────────────────────────────────
+   Question card content typography
+   ───────────────────────────────────────────────────────────────── */
+
+.answer-content {
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.answer-content p {
+  margin: 0.75rem 0;
+}
+
+.answer-content h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.answer-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.answer-content strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.answer-content ul, .answer-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.answer-content ul { list-style: disc; }
+.answer-content ol { list-style: decimal; }
+
+.answer-content li {
+  margin: 0.25rem 0;
+}
+
+.answer-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.answer-content th, .answer-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.answer-content th {
+  background: var(--bg-subtle);
+  font-weight: 600;
+}
+
+/* Senior insight blockquote — matches reference amber callout */
+.answer-content blockquote {
+  margin: 1rem 0;
+  padding: 0.875rem 1rem;
+  background: var(--insight-bg);
+  border-left: 4px solid var(--insight-border);
+  border-radius: 0.375rem;
+  color: var(--insight-text);
+}
+
+.answer-content blockquote p { margin: 0.25rem 0; }
+.answer-content blockquote strong { color: var(--insight-text); }
+
+/* ─────────────────────────────────────────────────────────────────
+   Animations
+   ───────────────────────────────────────────────────────────────── */
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.18s ease-out;
+}
+
+/* Make scrollbars look intentional */
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+.thin-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}

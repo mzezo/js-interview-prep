@@ -48,6 +48,12 @@ const statusColors: Record<Status, { bg: string; text: string; icon: React.React
   },
 };
 
+const difficultyConfig: Record<string, { label: string; colorVar: string }> = {
+  junior: { label: 'Junior', colorVar: 'var(--difficulty-junior)' },
+  mid: { label: 'Mid-level', colorVar: 'var(--difficulty-mid)' },
+  senior: { label: 'Senior', colorVar: 'var(--difficulty-senior)' },
+};
+
 export function QuestionCard({
   question,
   expanded,
@@ -59,6 +65,7 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const category = categories.find((c) => c.id === question.category);
   const statusStyle = statusColors[status];
+  const diffDef = question.difficulty ? difficultyConfig[question.difficulty] : null;
 
   return (
     <article
@@ -104,6 +111,18 @@ export function QuestionCard({
                   style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}
                 >
                   {category.label}
+                </span>
+              )}
+              {diffDef && (
+                <span
+                  className="px-2.5 py-0.5 text-xs font-medium rounded-md border"
+                  style={{
+                    color: diffDef.colorVar,
+                    borderColor: `color-mix(in srgb, ${diffDef.colorVar} 30%, transparent)`,
+                    background: `color-mix(in srgb, ${diffDef.colorVar} 10%, transparent)`,
+                  }}
+                >
+                  {diffDef.label}
                 </span>
               )}
               <span

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Sidebar } from '@/components/Sidebar';
+import { ChapterSidebar } from '@/components/ChapterSidebar';
 import { MarkdownContent } from '@/components/MarkdownContent';
 import { getAllChapters, getChapterBySlug } from '@/lib/content';
 
@@ -24,7 +24,7 @@ export default function ChapterPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="md:flex min-h-screen">
-      <Sidebar chapters={chapters} currentSlug={chapter.slug} />
+      <ChapterSidebar chapters={chapters} currentSlug={chapter.slug} />
       <main id="main-content" className="flex-1 p-6 md:p-12 max-w-4xl">
         <MarkdownContent>{chapter.content}</MarkdownContent>
 

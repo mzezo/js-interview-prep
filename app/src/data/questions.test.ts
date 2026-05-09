@@ -3,8 +3,8 @@ import { allQuestions } from './questions';
 import { categories } from './categories';
 
 describe('questions data', () => {
-  it('has 135 questions', () => {
-    expect(allQuestions.length).toBe(135);
+  it('has 164 questions', () => {
+    expect(allQuestions.length).toBe(164);
   });
 
   it('has unique ids', () => {
@@ -26,7 +26,7 @@ describe('questions data', () => {
     }
   });
 
-  it('ids are sequential from 1 to 135', () => {
+  it('ids are sequential from 1 to 164', () => {
     const sorted = [...allQuestions].sort((a, b) => a.id - b.id);
     sorted.forEach((q, i) => {
       expect(q.id).toBe(i + 1);

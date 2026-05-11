@@ -16,4 +16,5 @@ export const categories: Category[] = [
   { id: 'networking', label: 'Networking & HTTP', description: 'CORS, caching, auth' },
   { id: 'system-design', label: 'System Design', description: 'Frontend architecture' },
   { id: 'behavioral', label: 'Behavioral', description: 'Communication, stories' },
+  { id: 'typescript', label: 'TypeScript', description: 'Types, generics, advanced patterns' },
 ];

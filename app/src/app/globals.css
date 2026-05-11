@@ -44,6 +44,7 @@
   --difficulty-junior: #10b981;
   --difficulty-mid: #3b82f6;
   --difficulty-senior: #8b5cf6;
+  --difficulty-lead: #e11d48;
 
   /* Senior insight callout */
   --insight-bg: #fffbeb;
@@ -92,6 +93,8 @@
   --insight-bg: #1c1917;
   --insight-border: #d97706;
   --insight-text: #fbbf24;
+
+  --difficulty-lead: #fb7185;
 
   --code-bg: #050505;
   --code-text: #e5e7eb;

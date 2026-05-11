@@ -1,6 +1,6 @@
 export type Status = 'not-started' | 'studied' | 'needs-review' | 'mastered';
 
-export type Difficulty = 'junior' | 'mid' | 'senior';
+export type Difficulty = 'junior' | 'mid' | 'senior' | 'lead';
 
 export interface Question {
   id: number;

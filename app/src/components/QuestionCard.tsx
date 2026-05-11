@@ -52,6 +52,7 @@ const difficultyConfig: Record<string, { label: string; colorVar: string }> = {
   junior: { label: 'Junior', colorVar: 'var(--difficulty-junior)' },
   mid: { label: 'Mid-level', colorVar: 'var(--difficulty-mid)' },
   senior: { label: 'Senior', colorVar: 'var(--difficulty-senior)' },
+  lead: { label: 'Lead', colorVar: 'var(--difficulty-lead)' },
 };
 
 export function QuestionCard({

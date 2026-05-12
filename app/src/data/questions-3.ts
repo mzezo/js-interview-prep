@@ -9,30 +9,340 @@ export const questions: Question[] = [
     category: 'react-core',
     title: 'What is the Virtual DOM and how does reconciliation work?',
     difficulty: 'mid',
-    answer: `**Virtual DOM** — an in-memory tree of plain JS objects describing what the UI should look like. Cheap to create and compare.
+    answer: `A comprehensive guide for intermediate developers. We'll start at "what is it," walk all the way down to a working ~80-line implementation, and finish with optimization rules and an FAQ.
 
-**Reconciliation** — React's algorithm that compares the previous virtual tree with the new one and figures out the minimum DOM mutations needed.
+## 1. What the Virtual DOM Is
 
-**Two render phases:**
-1. **Render phase** — Pure, can be paused/restarted. React calls your components and builds the new VDOM tree.
-2. **Commit phase** — Synchronous, can't be interrupted. Apply the diff to the actual DOM, run effects.
+The **Virtual DOM (VDOM)** is a lightweight in-memory tree of plain JavaScript objects that describes what the UI should look like at a moment in time. Each node is roughly:
 
-**Diff heuristics (the optimizations that make it fast):**
-
-1. **Different element types → unmount + remount.** Changing \`<div>\` to \`<span>\` throws away the entire subtree (state lost!).
-2. **Same type → update props in place.**
-3. **Lists need keys** — without stable keys, React diffs by position, leading to wasted work or wrong state preservation.
-
-\`\`\`jsx
-// Same key, different position — React moves the existing component (and its state)
-<TodoItem key={todo.id} ... />
-
-// Index keys when items reorder — bug magnet
-<TodoItem key={i} ... /> // ❌ state attaches to wrong item after reorder
+\`\`\`js
+{ type: 'div', props: { className: 'card' }, children: [...] }
 \`\`\`
 
-**Why it's O(n), not O(n³):** A naive tree diff is cubic. React makes assumptions (no cross-tree movement, keys for lists) that bring it to linear. The trade-off: stable component identity is your responsibility via keys.`,
-    hint: 'In-memory tree + diff heuristics',
+No real DOM nodes, no layout, no listeners — just data. It exists only in JS memory. The library compares successive VDOM trees and applies the minimum DOM mutations needed to bring the real DOM into alignment.
+
+**Real DOM vs Virtual DOM:**
+
+| | Real DOM | Virtual DOM |
+|---|---|---|
+| Backing storage | Browser C++ engine | JS objects on the JS heap |
+| Cost to create a node | High — allocates layout, style, accessibility data | Low — plain object literal |
+| Cost to mutate | Triggers reflow / repaint | None — it's just object mutation |
+| Reads | Synchronous, can force layout | Cheap — property access |
+| Programming model | Imperative (\`appendChild\`, \`setAttribute\`) | Declarative (return a tree) |
+
+**Why this is faster than naive \`innerHTML\`** — *not* because object diffing is faster than DOM writes (it isn't; individual writes are cheap), but because the library can:
+
+- Batch many writes into one transaction.
+- Preserve DOM nodes — and their state: focus, selection, scroll position, \`<video>\` playback — when only attributes change.
+- Skip subtrees that didn't change.
+- Reorder children using stable identity (keys) instead of remove-then-insert.
+
+The VDOM is a **plan**. It never appears on screen by itself.
+
+---
+
+## 2. The Full Lifecycle: Create → Diff → Commit
+
+A React-style update runs three distinct phases:
+
+**Phase 1 — Construct the new tree (render phase)**
+- A state change schedules an update.
+- The library calls the affected component functions top-down.
+- Each component returns JSX, which is sugar for \`createElement(type, props, ...children)\` returning plain objects.
+- The result is a **new VDOM tree** — the "next" snapshot.
+
+**Phase 2 — Diff against the previous tree (reconciliation)**
+- Walk both trees in parallel from the root.
+- For each pair of nodes decide: insert / update / delete / move.
+- Build up a list of **effects** (patches) describing the work needed.
+
+**Phase 3 — Commit to the real DOM**
+- Apply effects in order: deletions, insertions, updates, ref bindings.
+- Run lifecycle callbacks (\`componentDidMount\`, \`useLayoutEffect\`, then \`useEffect\` after paint).
+- Replace the "current" tree pointer with the new tree.
+
+React 16+ splits these further: render is **interruptible** (Fiber can pause and resume to keep the main thread responsive); commit is **atomic** (synchronous, must complete in one tick — otherwise the DOM would visibly tear).
+
+---
+
+## 3. Diffing: Data Structures & Algorithms
+
+**The naive problem.** Computing the minimum edit distance between two general trees is **O(n³)** in the worst case (and NP-hard for some variants). That's prohibitive for a 5000-node UI on every keystroke.
+
+**Heuristics that make it O(n).** React makes three assumptions:
+
+1. **Two elements of different types produce different trees.** \`<div>\` → \`<span>\` throws away the whole subtree.
+2. **The developer hints at stable identity** with a \`key\` on list items, so the diff doesn't have to discover it.
+3. **No cross-tree movement.** A node that "moves" to a different parent is treated as delete + insert, not relocation.
+
+**The shape of the diff** — a synchronized pre-order traversal:
+
+\`\`\`
+diff(oldNode, newNode):
+  if oldNode == null:                 => insert newNode subtree
+  if newNode == null:                 => delete oldNode subtree
+  if oldNode.type !== newNode.type:   => unmount + mount
+  if newNode.type is a string (host element):
+      => patch attributes / props
+      => diff children (keyed or positional)
+  if newNode.type is a function (component):
+      => run new component with new props
+      => recurse on returned subtree
+\`\`\`
+
+**Keyed children diff** — the part most worth understanding. Without keys, children are paired by index, so inserting at the front shifts every position and forces every item to "change":
+
+\`\`\`
+[A, B, C]  →  [X, A, B, C]
+  index 0: A → X
+  index 1: B → A
+  index 2: C → B
+  index 3: insert C
+\`\`\`
+
+Four mutations and state attached to the wrong components. With keys, the algorithm matches by identity:
+
+1. Build a map \`{ key → oldIndex }\` for the old children. **O(n) time, O(n) space.**
+2. Walk new children left-to-right. For each, look up its key:
+   - Missing → **insert**.
+   - Present, in-order → **update in place**.
+   - Present, out-of-order → mark for **move**.
+3. Any unmatched old children → **delete**.
+
+Time: **O(n)**. Space: O(n) for the map and the effect list.
+
+Inferno, Snabbdom, and Vue extend this with two-pointer scans from both ends to skip common prefixes/suffixes — same worst-case bound, faster in practice for append/prepend.
+
+---
+
+## 4. From Diff to DOM: Batching, Events, Lifecycle
+
+**Batching.** Multiple state updates within the same task are coalesced into a single render:
+
+\`\`\`jsx
+function handleClick() {
+  setCount(c => c + 1);   // queued
+  setName('Alice');       // queued
+  setOpen(true);          // queued
+}                         // → one render, one commit, one paint
+\`\`\`
+
+Pre-React-18 batching only happened inside React-managed event handlers. React 18+ **batches automatically everywhere** — \`setTimeout\`, \`Promise.then\`, native event listeners.
+
+**Commit phase order** (mirrors React's \`commitMutationEffects\`):
+1. **Deletions** — flagged nodes detached. \`componentWillUnmount\` / \`useLayoutEffect\` cleanups run.
+2. **Insertions and updates** — new nodes attached, attributes set, refs assigned.
+3. **Layout effects** — \`useLayoutEffect\` runs synchronously, **before paint**. Measurement-based adjustments live here.
+4. **Paint** — the browser commits pixels.
+5. **Passive effects** — \`useEffect\` runs asynchronously **after paint**.
+
+**Synthetic events.** React attaches a single delegated listener at the root for each event type. \`<button onClick={...}>\` does *not* add a real \`click\` listener to that button. Instead, the handler is stored in React's internal map keyed by fiber; the root listener dispatches by walking the **React tree** (not the DOM tree). This matters for portals (events bubble in React-tree order) and for performance (one listener regardless of button count).
+
+**Refs.** Assigned during commit, after DOM mutation but before passive effects. Reading \`ref.current\` in render is unreliable; in \`useLayoutEffect\` it's safe.
+
+---
+
+## 5. Worked Example: a Tiny End-to-End VDOM
+
+A minimal but complete implementation in ~80 lines. Skip nothing here — this is the full pipeline.
+
+**a) Create elements** (the \`createElement\` / \`h\` helper):
+
+\`\`\`js
+function h(type, props, ...children) {
+  return { type, props: props ?? {}, children: children.flat() };
+}
+
+const oldTree = h('ul', { id: 'list' },
+  h('li', { key: 'a' }, 'Apple'),
+  h('li', { key: 'b' }, 'Banana'),
+);
+
+const newTree = h('ul', { id: 'list', class: 'fruits' },
+  h('li', { key: 'b' }, 'Banana'),
+  h('li', { key: 'c' }, 'Cherry'),
+);
+\`\`\`
+
+**b) Mount to a container** (initial render — recurse and append):
+
+\`\`\`js
+function mount(vnode, container) {
+  if (typeof vnode === 'string') {
+    const node = document.createTextNode(vnode);
+    container.appendChild(node);
+    return node;
+  }
+  const el = document.createElement(vnode.type);
+  for (const [k, v] of Object.entries(vnode.props ?? {})) {
+    if (k === 'key') continue;
+    if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else el.setAttribute(k, v);
+  }
+  for (const child of vnode.children) mount(child, el);
+  container.appendChild(el);
+  vnode.el = el; // remember which DOM node this vnode owns
+  return el;
+}
+\`\`\`
+
+**c) Diff two trees** into a patch list:
+
+\`\`\`js
+function diff(oldVnode, newVnode) {
+  const patches = [];
+
+  if (newVnode == null) {
+    patches.push({ kind: 'REMOVE', target: oldVnode.el });
+    return patches;
+  }
+  if (oldVnode == null) {
+    patches.push({ kind: 'CREATE', vnode: newVnode });
+    return patches;
+  }
+  if (typeof oldVnode !== typeof newVnode ||
+      (typeof oldVnode === 'object' && oldVnode.type !== newVnode.type)) {
+    patches.push({ kind: 'REPLACE', target: oldVnode.el, vnode: newVnode });
+    return patches;
+  }
+  if (typeof newVnode === 'string') {
+    if (oldVnode !== newVnode) patches.push({ kind: 'TEXT', value: newVnode });
+    return patches;
+  }
+
+  // Same host element — diff props and children
+  const propPatches = diffProps(oldVnode.props, newVnode.props);
+  if (propPatches.length)
+    patches.push({ kind: 'PROPS', target: oldVnode.el, ops: propPatches });
+
+  patches.push(...diffChildren(oldVnode, newVnode));
+  newVnode.el = oldVnode.el; // carry the DOM reference forward
+  return patches;
+}
+
+function diffProps(oldProps = {}, newProps = {}) {
+  const ops = [];
+  for (const k in newProps)
+    if (oldProps[k] !== newProps[k]) ops.push({ kind: 'set', name: k, value: newProps[k] });
+  for (const k in oldProps)
+    if (!(k in newProps)) ops.push({ kind: 'remove', name: k });
+  return ops;
+}
+
+function diffChildren(oldParent, newParent) {
+  const patches = [];
+  const oldByKey = new Map();
+  oldParent.children.forEach((c, i) =>
+    oldByKey.set(c.props?.key ?? i, { c, i })
+  );
+
+  newParent.children.forEach((nc, i) => {
+    const key = nc.props?.key ?? i;
+    const match = oldByKey.get(key);
+    if (!match) {
+      patches.push({ kind: 'INSERT', parent: oldParent.el, vnode: nc, index: i });
+    } else {
+      patches.push(...diff(match.c, nc));
+      if (match.i !== i)
+        patches.push({ kind: 'MOVE', target: match.c.el, parent: oldParent.el, index: i });
+      oldByKey.delete(key);
+    }
+  });
+
+  for (const { c } of oldByKey.values())
+    patches.push({ kind: 'REMOVE', target: c.el });
+
+  return patches;
+}
+\`\`\`
+
+**d) Apply patches** to the real DOM:
+
+\`\`\`js
+function applyPatches(patches) {
+  for (const p of patches) {
+    switch (p.kind) {
+      case 'REMOVE':  p.target.remove(); break;
+      case 'TEXT':    p.target.nodeValue = p.value; break;
+      case 'PROPS':
+        for (const op of p.ops) {
+          if (op.kind === 'set')     p.target.setAttribute(op.name, op.value);
+          else                       p.target.removeAttribute(op.name);
+        }
+        break;
+      case 'INSERT':  mount(p.vnode, p.parent); break; // simplified — assumes append-at-end
+      case 'MOVE':
+        p.parent.insertBefore(p.target, p.parent.children[p.index] ?? null);
+        break;
+      case 'REPLACE':
+        // omitted for brevity: unmount old, mount new in its place
+        break;
+    }
+  }
+}
+\`\`\`
+
+In production this gets buffered (patches accumulate during diff, apply during commit, not interleaved), event handlers go through a delegation table instead of \`addEventListener\` per node, and the tree is a linked list of fibers rather than nested arrays — but the bones are exactly what's above.
+
+---
+
+## 6. Performance: Pitfalls and Optimizations
+
+**The cardinal rule:** the VDOM doesn't make slow renders fast — it makes redundant DOM mutations cheap. The render function still runs. If it's slow, the page is slow.
+
+**Common pitfalls:**
+
+- **Anonymous handlers, inline objects, fresh arrays** every render — break \`React.memo\` / \`PureComponent\` and trigger child re-renders that didn't need to happen.
+- **Index keys on reorderable lists** — defeats the keyed-diff algorithm; state attaches to the wrong items.
+- **Reading layout in render** (\`getBoundingClientRect\`, \`offsetHeight\`) — forces synchronous layout and defeats batching.
+- **Massive component trees rebuilt for one-cell changes** — without memoization, a top-level update recurses through thousands of nodes producing identical output.
+- **Toggling the root element type** — \`{cond ? <Section /> : <div><Section /></div>}\` switches between two roots, throwing away the whole subtree each toggle.
+
+**Optimizations, ranked by impact:**
+
+1. **Keys on lists.** Free, biggest single win on dynamic lists.
+2. **\`React.memo\` + stable prop references.** Skip subtrees whose props didn't change. Wrap large/expensive children; feed them primitives or \`useCallback\` / \`useMemo\` outputs.
+3. **\`useMemo\` for expensive derived values.** Avoids the work entirely on re-renders triggered by unrelated state.
+4. **\`shouldComponentUpdate\` / \`PureComponent\`** in class components — same idea as \`memo\`, but you control the comparison.
+5. **Split context.** Readers of one slice don't re-render when another slice updates.
+6. **Co-locate state.** Move state down so fewer components re-render.
+7. **Virtualize long lists** (\`react-window\`, \`react-virtuoso\`). The VDOM still iterates 10,000 items if you render 10,000 items; virtualization renders ~30 windowed items and skips the diff entirely for the rest.
+8. **Avoid \`React.Children.map\`-driven cloning** in hot paths — it walks and clones the JSX subtree.
+
+The React 19 Compiler auto-memoizes — many of the manual hooks above become unnecessary in compiled code. Until adoption is universal: profile with React DevTools → Profiler, and let "why did this render?" drive your changes.
+
+---
+
+## 7. FAQ
+
+**Is the Virtual DOM faster than the real DOM?**
+No — on its own it's strictly slower (it adds a layer). It's faster than *naive* full-tree rebuilds because it batches and minimizes DOM work. Hand-tuned imperative DOM code can outperform any VDOM library.
+
+**Does Svelte / SolidJS have a Virtual DOM?**
+No. Svelte compiles components to imperative DOM-mutation code at build time. Solid uses fine-grained reactive bindings that update DOM nodes directly. Both skip diffing entirely.
+
+**Does Vue have a Virtual DOM?**
+Yes — Vue 3 uses one, with compile-time optimizations (static hoisting, patch flags) so the diff knows in advance which parts can change.
+
+**Why is JSX a function call instead of a string template?**
+A function call returns a *typed* object you can introspect, store, transform, and serialize. A string template hides structure behind parsing — tooling can't reason about it.
+
+**What's the difference between Virtual DOM and Shadow DOM?**
+Completely different. **Shadow DOM** is a browser feature for style/scope encapsulation in web components — it's real DOM, just isolated. **Virtual DOM** is a library technique for diffing intended DOM states.
+
+**Can you implement a Virtual DOM in vanilla JS?**
+Yes — the ~80 lines above are one. Production libraries (Snabbdom, Mithril, Preact) are this design with more polish.
+
+**Why doesn't every framework use a VDOM?**
+Compiler-based reactivity (Svelte, Solid) generates targeted updates without runtime diffing — same end result, less runtime cost. Trade-off: more compilation complexity in exchange for runtime savings.
+
+**Does React still use a Virtual DOM in 2026?**
+Yes, conceptually. The implementation is now **Fiber** — a linked list of fiber nodes rather than a tree of objects — but the algorithm (diff against the previous tree, commit minimum changes) is the same idea.
+
+**When does the VDOM not help me?**
+When the bottleneck is your render function (expensive component bodies, derived data) rather than DOM writes; when you re-render an entire 10,000-item list per keystroke; when state lives in the wrong place causing whole-tree updates. The VDOM optimizes *applying* output, not *producing* it.`,
+    hint: 'In-memory tree + diff heuristics — full guide',
   },
   {
     id: 56,

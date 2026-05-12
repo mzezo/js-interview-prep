@@ -497,6 +497,273 @@ function Posts() {
 **Limitations:** Vanilla \`fetch\` in \`useEffect\` doesn't suspend. You need a Suspense-aware data layer (React Query 5+, Relay, Next.js, custom \`use()\`).`,
     hint: 'Declarative loading states',
   },
+  {
+    id: 185,
+    category: 'react-core',
+    title: 'What does JSX actually compile to?',
+    difficulty: 'junior',
+    answer: `JSX is **not** a template language and the browser does not understand it. A compiler (Babel, SWC, esbuild, tsc) rewrites every JSX expression into a plain function call that produces a React element — a small JS object describing what to render.
+
+**Before (JSX):**
+
+\`\`\`jsx
+function Greeting({ name }) {
+  return (
+    <div className="hello">
+      <h1>Hello, {name}!</h1>
+      <button onClick={() => alert('hi')}>Wave</button>
+    </div>
+  );
+}
+\`\`\`
+
+**After (React 17+ automatic runtime — what the bundler emits):**
+
+\`\`\`js
+import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+
+function Greeting({ name }) {
+  return _jsxs('div', {
+    className: 'hello',
+    children: [
+      _jsx('h1', { children: ['Hello, ', name, '!'] }),
+      _jsx('button', { onClick: () => alert('hi'), children: 'Wave' }),
+    ],
+  });
+}
+\`\`\`
+
+The return value at runtime is just a tree of objects, roughly:
+
+\`\`\`js
+{ type: 'div', props: { className: 'hello', children: [...] } }
+\`\`\`
+
+**Implications that drop out of this:**
+
+- **Lowercase = HTML tag, Capitalized = component.** \`<button>\` becomes the string \`'button'\`; \`<Button>\` becomes the variable \`Button\` (so it must be in scope).
+- **\`className\` instead of \`class\`** — the prop becomes an object key, and \`class\` is a reserved word in JS.
+- **Every child needs a key in a list** — siblings collapse into a plain JS array, and React has no other way to tell them apart.
+- **JSX is an expression** — it evaluates to an object, so you can store it in a variable, return it, or pass it as a prop. There is no "JSX statement."
+- **Fragments** (\`<>...</>\`) compile to \`React.Fragment\` so you can return siblings without a wrapper DOM node.
+
+**Visual aid suggestion:** A two-column diagram with the JSX source on the left and the compiled \`_jsx(...)\` call tree on the right, arrows showing each tag mapping to a node, and the runtime element tree (plain JS objects) on the far right — making it obvious that JSX → function call → object tree → DOM.`,
+    hint: 'Syntactic sugar over React.createElement / _jsx',
+  },
+  {
+    id: 186,
+    category: 'react-core',
+    title: 'React.memo — when does it actually help (and when does it not)?',
+    difficulty: 'senior',
+    answer: `\`React.memo(Component)\` wraps a component so it **skips re-rendering when its props are shallow-equal to the previous props**. It's a render-phase bailout, nothing more.
+
+\`\`\`jsx
+import { memo, useState, useCallback } from 'react';
+
+const Row = memo(function Row({ item, onToggle }) {
+  console.log('render', item.id);
+  return (
+    <li onClick={() => onToggle(item.id)}>
+      {item.done ? '✅' : '⬜️'} {item.text}
+    </li>
+  );
+});
+
+function List({ items }) {
+  const [, force] = useState(0);
+
+  // ❌ New function reference every render — breaks memo
+  // const onToggle = (id) => console.log(id);
+
+  // ✅ Stable reference — memo can actually bail out
+  const onToggle = useCallback((id) => console.log(id), []);
+
+  return (
+    <>
+      <button onClick={() => force((n) => n + 1)}>Force parent render</button>
+      <ul>
+        {items.map((item) => (
+          <Row key={item.id} item={item} onToggle={onToggle} />
+        ))}
+      </ul>
+    </>
+  );
+}
+\`\`\`
+
+Click "Force parent render" with the \`useCallback\` version and the console stays quiet. Remove it and every \`Row\` logs on every parent render — that's \`memo\` getting defeated by a fresh function prop.
+
+**\`memo\` helps when ALL of these are true:**
+
+1. The component renders **often** as a child of a re-rendering parent.
+2. Its **props are referentially stable** across those renders (primitives, or memoized objects/functions/arrays).
+3. Its **render is non-trivial** — large list rows, heavy chart, deep tree. Skipping it actually saves work.
+
+**\`memo\` does NOT help — and adds overhead — when:**
+
+- Props are inline objects/arrays/functions (\`style={{...}}\`, \`onClick={() => ...}\`) — shallow compare fails every render.
+- The component re-renders because of its own state or a context it subscribes to (props were never the trigger).
+- Its children are passed via \`children\` and the parent re-creates that JSX each render (\`children\` is a fresh element tree, so shallow compare fails).
+- The render is cheap enough that the comparison overhead exceeds the savings.
+
+**Custom comparator** — for the rare case where shallow equality lies:
+
+\`\`\`jsx
+const Chart = memo(InnerChart, (prev, next) => prev.data.version === next.data.version);
+\`\`\`
+
+**Looking ahead:** The React 19 Compiler auto-memoizes components and values; manual \`memo\` / \`useMemo\` / \`useCallback\` are expected to fade in compiled codebases. Until then: **profile first** (React DevTools Profiler → "Why did this render?"), then memoize the specific component that's actually hot.
+
+**Visual aid suggestion:** A flowchart that starts at "Parent re-renders" and branches: *Is child wrapped in memo?* → *Are props shallow-equal?* → render is skipped. Annotate the failure paths with the common props that break equality (inline object, inline function, fresh JSX children).`,
+    hint: 'Shallow prop-equality bailout — easy to defeat',
+  },
+  {
+    id: 187,
+    category: 'react-core',
+    title: 'Lifting state up — when, how, and what to avoid',
+    difficulty: 'mid',
+    answer: `When two sibling components need to **stay in sync** about the same value, that value can't live in either of them — it needs to live in their **closest common ancestor**. The ancestor owns the state and passes \`value\` + \`onChange\` down. This is "lifting state up."
+
+**Two inputs that need to mirror each other (Celsius ↔ Fahrenheit):**
+
+\`\`\`jsx
+import { useState } from 'react';
+
+function TemperatureInput({ scale, value, onChange }) {
+  return (
+    <label>
+      Enter temperature in {scale === 'c' ? 'Celsius' : 'Fahrenheit'}:
+      <input value={value} onChange={(e) => onChange(e.target.value)} />
+    </label>
+  );
+}
+
+function Calculator() {
+  // 🔼 State lifted to the common parent
+  const [temperature, setTemperature] = useState('');
+  const [scale, setScale] = useState('c');
+
+  const celsius = scale === 'f' ? toCelsius(temperature) : temperature;
+  const fahrenheit = scale === 'c' ? toFahrenheit(temperature) : temperature;
+
+  return (
+    <>
+      <TemperatureInput
+        scale="c"
+        value={celsius}
+        onChange={(v) => { setScale('c'); setTemperature(v); }}
+      />
+      <TemperatureInput
+        scale="f"
+        value={fahrenheit}
+        onChange={(v) => { setScale('f'); setTemperature(v); }}
+      />
+      <p>{Number(celsius) >= 100 ? 'Water boils 🔥' : 'Not yet'}</p>
+    </>
+  );
+}
+
+const toCelsius = (f) => f === '' ? '' : ((Number(f) - 32) * 5) / 9;
+const toFahrenheit = (c) => c === '' ? '' : (Number(c) * 9) / 5 + 32;
+\`\`\`
+
+Both inputs are now **fully controlled** by \`Calculator\`. Typing in either updates the shared source of truth; both inputs re-render from it.
+
+**When to lift:**
+
+- Two siblings need to read or react to the same value.
+- A parent needs to observe or persist a child's state.
+- You're tempted to "sync" state with \`useEffect\` between siblings — almost always a sign you should have lifted instead.
+
+**What to avoid:**
+
+- **Lifting too high.** Don't push form state into a global store or page-level component if only two siblings care. The parent that needs the value is the right home — no further.
+- **Duplicating state** with \`useEffect(() => setLocal(prop), [prop])\` to "mirror" a parent's value into local state. That's two sources of truth that drift. Either use the prop directly or lift further.
+- **Derived state stored separately.** \`fahrenheit\` above is computed from \`temperature\` + \`scale\` in render — not a third \`useState\`. Storing derived values means keeping them in sync manually.
+- **Prop drilling 5+ levels.** That's the cue to reach for context or a state library, not deeper drilling.
+
+**Inverse move — "colocate state":** If a piece of state is only used in one leaf, push it down. Keeping unused state high causes unnecessary re-renders of unrelated siblings.
+
+**Visual aid suggestion:** A tree diagram of the component hierarchy with the shared state shown as a glowing node at the common ancestor, downward arrows labelled \`value\` to the children, and upward arrows labelled \`onChange\` from the children — making the "data down, events up" loop visually obvious.`,
+    hint: 'Move shared state to the closest common ancestor',
+  },
+  {
+    id: 188,
+    category: 'react-core',
+    title: 'Hydration in SSR — what is it and what can go wrong?',
+    difficulty: 'senior',
+    answer: `**Hydration** is the process React goes through after server-rendered HTML lands in the browser: it walks the existing DOM, attaches event listeners, and reconciles its internal tree with what's already on screen — *without* throwing the markup away and re-creating it.
+
+**The pipeline:**
+
+1. Server renders the component tree to an HTML string (\`renderToString\` / \`renderToPipeableStream\`).
+2. Browser shows that HTML immediately — fast First Contentful Paint, but **nothing is interactive**.
+3. JS bundle loads. React calls \`hydrateRoot(container, <App />)\`.
+4. React walks the DOM in lock-step with a fresh render, attaching listeners and wiring up state. After this, the page is interactive.
+
+**Minimal example:**
+
+\`\`\`jsx
+// server.js
+import { renderToString } from 'react-dom/server';
+import App from './App.jsx';
+
+app.get('/', (_req, res) => {
+  const html = renderToString(<App />);
+  res.send(\`
+    <!doctype html>
+    <html><body>
+      <div id="root">\${html}</div>
+      <script type="module" src="/client.js"></script>
+    </body></html>
+  \`);
+});
+
+// client.js
+import { hydrateRoot } from 'react-dom/client';
+import App from './App.jsx';
+
+hydrateRoot(document.getElementById('root'), <App />);
+\`\`\`
+
+**The core constraint: the first client render must match the server HTML byte-for-byte** (well, node-for-node). If it doesn't, you get a hydration mismatch — historically React would throw away the server HTML and re-render from scratch (visual flicker, lost LCP); React 18+ recovers more gracefully but still warns loudly.
+
+**Classic mismatch causes:**
+
+- \`new Date()\`, \`Math.random()\`, \`crypto.randomUUID()\` in render — different on server vs client.
+- Reading \`window\`, \`localStorage\`, \`navigator\`, \`matchMedia\` during render — undefined on server.
+- Locale-/timezone-dependent formatting (\`toLocaleString\`) — server in UTC, browser in user TZ.
+- Browser extensions injecting nodes (Grammarly, password managers) — DOM no longer matches.
+- Invalid HTML nesting (\`<p><div></div></p>\`, \`<table>\` without \`<tbody>\`) — the browser silently fixes it on parse, so the live DOM no longer matches what the server emitted.
+
+**Fixes:**
+
+\`\`\`jsx
+// 1. Defer client-only values until after hydration
+function Now() {
+  const [now, setNow] = useState(null);
+  useEffect(() => setNow(new Date().toLocaleTimeString()), []);
+  return <span>{now ?? '…'}</span>; // identical on server & first client render
+}
+
+// 2. Explicitly mark intentional mismatches (React 18+)
+<time suppressHydrationWarning>{new Date().toISOString()}</time>
+
+// 3. Skip server-rendering a subtree entirely
+'use client'; // Next.js App Router — runs only on the client
+\`\`\`
+
+**Partial / Selective / Streaming hydration** (React 18+):
+
+- \`<Suspense>\` boundaries can hydrate independently — a slow widget no longer blocks the rest of the page from becoming interactive.
+- The server can stream HTML for each boundary as it resolves; the client hydrates each chunk as its JS arrives.
+- React prioritizes hydrating the part of the tree the user is interacting with — click a button in an un-hydrated section and React hydrates that subtree first.
+
+**React Server Components change the math:** components marked as server-only are never hydrated at all — they ship as a serialized render result, not as JS. Only \`'use client'\` boundaries pay the hydration cost. This is the main reason SSR + RSC bundles can be dramatically smaller than classic SSR.
+
+**Visual aid suggestion:** A timeline diagram with three lanes — *Network*, *Browser paint*, *Interactivity* — showing: HTML arrives → FCP (pixels on screen, page is "dead") → JS bundle arrives → hydration runs → page becomes interactive. Mark FCP, LCP, and TTI on the same timeline so it's clear hydration is what closes the gap between "visible" and "usable."`,
+    hint: 'Attach React to server-rendered HTML — must match exactly',
+  },
 
   // ─────────────────────────────────────────────────────────────────
   // React Hooks (12)

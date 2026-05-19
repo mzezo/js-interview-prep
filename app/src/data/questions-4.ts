@@ -954,7 +954,7 @@ If a function is so simple a bug couldn't hide, the test is overhead.
   },
 
   // ─────────────────────────────────────────────────────────────────
-  // Debugging (8)
+  // Debugging (12)
   // ─────────────────────────────────────────────────────────────────
   {
     id: 105,
@@ -1424,6 +1424,144 @@ export default {
 
 **Senior signal:** "We ship source maps to Sentry but not the public bundle. Engineers can debug real production errors; the source itself isn't browsable."`,
     hint: 'Yes for monitoring, hidden for security',
+  },
+  {
+    id: 165,
+    category: 'debugging',
+    title: 'How to debug "TypeError: Cannot read properties of undefined (reading \'x\')"?',
+    difficulty: 'junior',
+    answer: `**The Bug:** You are trying to access a property on a variable that is currently \`undefined\` or \`null\`.
+
+\`\`\`javascript
+const user = { name: 'Alice' };
+console.log(user.profile.age); // 🚩 TypeError: Cannot read properties of undefined (reading 'age')
+\`\`\`
+
+Here, \`user.profile\` is \`undefined\`, so you can't read \`.age\` from it.
+
+**Step 1 — Read the trace:** 
+Look at the specific line number in the stack trace. The error tells you exactly *what* property is failing ('age' in this case). It means whatever is *before* the dot is undefined.
+
+**Step 2 — Identify why it's missing:**
+- Did an API call fail or return an unexpected shape?
+- Is this a React prop that hasn't been passed down yet?
+- Is the component rendering before the data has fetched (loading state missing)?
+
+**Step 3 — Fix via Defensive Code:**
+
+**Option A — Optional Chaining (\`?.\`):**
+\`\`\`javascript
+// ✅ Fails safely, returning undefined instead of throwing
+console.log(user.profile?.age); 
+\`\`\`
+
+**Option B — Nullish Coalescing (\`??\`) with Optional Chaining:**
+\`\`\`javascript
+// ✅ Provides a safe default
+const age = user.profile?.age ?? 'Unknown';
+\`\`\`
+
+**Option C — Guard clauses / Early returns:**
+\`\`\`javascript
+if (!user || !user.profile) return <Loading />;
+return <div>{user.profile.age}</div>;
+\`\`\`
+
+**Junior Signal:** Being able to read the error message correctly. The error is NOT that 'age' is undefined; the error is that the *thing containing 'age'* is undefined.`,
+    hint: 'Trace the line, check if the variable before the dot exists, use optional chaining.',
+  },
+  {
+    id: 166,
+    category: 'debugging',
+    title: 'What are your go-to DevTools features beyond console.log?',
+    difficulty: 'mid',
+    answer: `Using \`console.log\` is great, but DevTools offer much more power.
+
+**1. The \`debugger;\` statement:**
+Pauses execution right where you place it. Gives you full access to the current scope, call stack, and variable values.
+\`\`\`javascript
+function calculateDiscount(price, user) {
+  debugger; // ⏸️ Execution pauses here
+  return price * user.discountRate;
+}
+\`\`\`
+
+**2. Network Tab:**
+- **Throttling:** Test how your app behaves on 'Slow 3G' to catch loading state bugs or race conditions.
+- **Offline Mode:** Verify offline fallbacks and Service Workers.
+- **Copy as fetch:** Right-click a failed API request and 'Copy as fetch' to replay it in the console or terminal.
+
+**3. Elements Tab / DOM Breakpoints:**
+Right-click a DOM node → 'Break on' → 'subtree modifications' or 'attribute modifications'. Invaluable when you don't know *what* JavaScript is changing a specific element's class or injecting span tags.
+
+**4. Advanced Console Methods:**
+- \`console.table(data)\` — Formats arrays of objects into neat, readable tables.
+- \`console.trace()\` — Prints the entire call stack showing exactly how a function was called.
+- \`console.time('label')\` / \`console.timeEnd('label')\` — Measure execution time of a synchronous operation.
+
+**5. Preserve Log:**
+Check the "Preserve log" box in the console to retain logs across page navigations (critical for debugging issues that happen right before the window redirects).`,
+    hint: 'debugger, console.table, Network throttling, DOM breakpoints, preserve log.',
+  },
+  {
+    id: 167,
+    category: 'debugging',
+    title: 'How do you narrow down a bug that only happens in production, not locally?',
+    difficulty: 'senior',
+    answer: `Production-only bugs are notoriously tricky. You must eliminate the differences between environments one by one.
+
+**Step 1 — Match the Environment:**
+- Are you building the app in production mode locally? Development mode behaves differently (e.g., React Strict Mode double renders, different polyfills).
+- Run \`npm run build && npm run start\` locally to rule out dev-server differences.
+
+**Step 2 — Scrutinize the Data:**
+- Production databases have vastly different data shapes and sizes. An API payload in prod might have null fields, missing relationships, or arrays of 10,000 items that aren't present in your local DB.
+- Request an anonymized dump or use Sentry payloads to replicate the exact state.
+
+**Step 3 — Hydration Mismatches (SSR):**
+Next.js/Remix apps often throw hydration errors in production if the server renders different HTML than the client expects. This happens if you condition rendering on \`window.innerWidth\` or \`localStorage\` before the component mounts (since the server doesn't have them).
+
+**Step 4 — Third-party Scripts & Ad Blockers:**
+Production environments have analytics tags, GTM, chat widgets, and users running ad blockers. A blocked API endpoint or a script colliding with global scope can wreck the app.
+
+**Step 5 — Caching & CDNs:**
+A user might be served an old HTML file but fetch the latest JS chunks, causing crashes. Clear server caches, check CDN headers (\`Cache-Control\`), or verify Service Worker behavior.
+
+**Step 6 — De-obfuscation:**
+Use Source Maps on your error reporting tool (like Datadog/Sentry) to read the stack trace. Never try to guess what minified code \`var a = o.b\` means without a map.`,
+    hint: 'Build in prod mode locally, check data shapes, hydration issues, caches, and third-party scripts.',
+  },
+  {
+    id: 168,
+    category: 'debugging',
+    title: 'Describe your methodology for leading a team through a P0 production incident.',
+    difficulty: 'lead',
+    answer: `Handling critical incidents (P0s) is about managing people and process as much as managing code.
+
+**1. Triage & Communication (The "Stop the bleeding" phase):**
+- Acknowledge the alert immediately. Establish a dedicated communication channel (Slack incident room or War Room bridge).
+- Assign roles: 
+  - **Incident Commander (IC):** Directs the response, prevents duplicated work, and communicates outward. (This shouldn't be the person writing the fix).
+  - **Subject Matter Experts (SMEs):** Investigate the code and logs.
+- Focus strictly on mitigation. Revert a bad deployment, isolate traffic, or apply a feature flag toggle. A quick rollback is almost always better than a rushed "fix forward."
+
+**2. Investigation Methodology:**
+- Check the dashboard correlations: Did CPU spike right when network latency degraded? 
+- "What changed recently?" — Verify recent merged PRs, infrastructure config changes, or third-party API outages.
+- Avoid panic-guessing. Use a methodical, hypothesis-driven approach. Prove the hypothesis using logs and metrics before writing a hotfix.
+
+**3. Remediation & Verification:**
+- Push the hotfix or rollback through CI/CD (resist the urge to manually bypass checks unless absolutely critical).
+- Verify the mitigation by observing the exact metrics that triggered the alarm.
+
+**4. Post-Incident (The "Blameless Post-Mortem"):**
+- Gather the timeline of events.
+- Ask the "5 Whys" to reach the architectural root cause. "Why did the DB crash?" -> "Connection pool exhausted." -> "Why?" -> "A runaway background job." -> "Why?" -> "Missing pagination limits."
+- Make the process Blameless: The system failed to protect the engineer from making a mistake.
+- Create concrete action items to improve observability, add guardrails, and update runbooks.
+
+**Lead Signal:** Understands that uncoordinated debugging exacerbates the outage. Priorities are: Mitigate first, communicate transparently, fix properly later, learn systematically.`,
+    hint: 'Roles (IC, SMEs), mitigation over fix-forward, methodical hypothesis generation, blameless post-mortem.',
   },
 
   // ─────────────────────────────────────────────────────────────────

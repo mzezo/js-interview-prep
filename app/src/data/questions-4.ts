@@ -954,7 +954,7 @@ If a function is so simple a bug couldn't hide, the test is overhead.
   },
 
   // ─────────────────────────────────────────────────────────────────
-  // Debugging (12)
+  // Debugging (32)
   // ─────────────────────────────────────────────────────────────────
   {
     id: 105,
@@ -1562,6 +1562,408 @@ Use Source Maps on your error reporting tool (like Datadog/Sentry) to read the s
 
 **Lead Signal:** Understands that uncoordinated debugging exacerbates the outage. Priorities are: Mitigate first, communicate transparently, fix properly later, learn systematically.`,
     hint: 'Roles (IC, SMEs), mitigation over fix-forward, methodical hypothesis generation, blameless post-mortem.',
+  },
+  {
+    id: 169,
+    category: 'debugging',
+    title: 'The "Double Increment" Illusion',
+    difficulty: 'junior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleIncrement = () => {
+    setCount(count + 1);
+    setCount(count + 1);
+  }
+  
+  return <button onClick={handleIncrement}>Count: {count}</button>;
+}
+\`\`\`
+
+**The Core Question:** When the user clicks the button once, what will the count be? Why? How would you fix this to make it increment by 2?
+
+**Expected Answer/Approach:** The candidate should explain that \`count\` only increments by 1. React batches state updates for performance, and state behaves like a snapshot per render. During \`handleIncrement\`, \`count\` remains \`0\` for both calls. The fix is to use the updater pattern: \`setCount(prev => prev + 1)\`.`,
+    hint: 'React state batching, stale closures in event handlers, the updater function pattern.',
+  },
+  {
+    id: 170,
+    category: 'debugging',
+    title: 'The Infinite Network Loop',
+    difficulty: 'junior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch(\`/api/users/\${userId}\`)
+      .then(res => res.json())
+      .then(setUser);
+  }); 
+  
+  return <div>{user?.name}</div>;
+}
+\`\`\`
+
+**The Core Question:** This component causes the browser to freeze and spams the network tab with requests. What is the root cause, and how do you fix it?
+
+**Expected Answer/Approach:** The candidate must identify the missing dependency array \`[]\` in the \`useEffect\`. Without it, the effect runs after *every* render. Since \`setUser\` triggers a re-render, the component renders, runs the effect, fetches the data, calls \`setUser\`, re-renders, and loops infinitely. The fix is passing \`[userId]\` as the second argument to \`useEffect\`.`,
+    hint: 'useEffect missing dependency arrays, infinite re-renders.',
+  },
+  {
+    id: 171,
+    category: 'debugging',
+    title: 'State vs Props Synchronization',
+    difficulty: 'junior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function ItemList({ items }) {
+  const [sortedItems, setSortedItems] = useState(items);
+  
+  // Assume buttons here that sort 'sortedItems' locally.
+  // But later, the parent passes a completely new 'items' array.
+}
+\`\`\`
+
+**The Core Question:** When the parent passes a new \`items\` array, the \`ItemList\` component fails to update its displayed list. Why?
+
+**Expected Answer/Approach:** \`useState(items)\` only sets the *initial* state during the very first render. Subsequent prop updates are ignored by \`useState\`. The candidate should explain that deriving state from props this way is an anti-pattern. They should compute the sorted items directly during render (optionally caching it with \`useMemo\` if sorting operations are heavily taxing) rather than syncing it to a local state.`,
+    hint: 'Initializing state from props, derived state anti-patterns.',
+  },
+  {
+    id: 172,
+    category: 'debugging',
+    title: 'The Invisible State Update',
+    difficulty: 'junior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+const [data, setData] = useState({ name: "John", age: 30 });
+
+const updateName = () => {
+  data.name = "Jane";
+  setData(data);
+};
+\`\`\`
+
+**The Core Question:** Clicking the button triggering \`updateName\` doesn't cause the UI to re-render. Why does React ignore the update?
+
+**Expected Answer/Approach:** Because \`data\` is mutated directly and the exact same object reference is passed to \`setData\`, React bails out of the update. The candidate must state that React requires state to be treated as immutable, and a new object reference must be created to trigger a re-render: \`setData({ ...data, name: "Jane" })\`.`,
+    hint: 'React state immutability, object reference equality.',
+  },
+  {
+    id: 173,
+    category: 'debugging',
+    title: 'The Ghost Interval',
+    difficulty: 'junior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+useEffect(() => {
+  const timer = setInterval(() => {
+    console.log("Tick");
+  }, 1000);
+}, []); 
+\`\`\`
+
+**The Core Question:** A developer complains that after navigating to a different page, "Tick" keeps logging in the console. How would you debug and fix this?
+
+**Expected Answer/Approach:** The candidate should identify the lack of a cleanup function. When the component unmounts, the interval continues running in the background. The essential fix is returning a cleanup function from the effect: \`return () => clearInterval(timer);\`.`,
+    hint: 'useEffect cleanup functions, memory leaks from timers and event listeners.',
+  },
+  {
+    id: 174,
+    category: 'debugging',
+    title: 'The Async Race Condition',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function Search() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    fetchResults(query).then(setResults);
+  }, [query]);
+}
+\`\`\`
+
+**The Core Question:** What is the critical bug in this asynchronous search implementation, and what architectural pattern would you use to solve it?
+
+**Expected Answer/Approach:** 
+*Diagnostic:* If a user types "a" then "b" quickly, two requests fire. If the server is slow and request "a" resolves *after* request "ab", the UI will show results for "a" despite the input showing "ab". 
+*Solution:* The candidate should explain using an \`AbortController\` or a boolean ignore flag in the cleanup function. A Lead candidate should mention that fetching natively in \`useEffect\` is risky and recommend a data-fetching library (React Query, SWR) that handles request cancellation and caching automatically.`,
+    hint: 'Race conditions with async operations in useEffect.',
+  },
+  {
+    id: 175,
+    category: 'debugging',
+    title: 'The Phantom Object Dependency',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+const SearchConfig = ({ filters }) => {
+  // filters is an object passed from parent without memoization
+  useEffect(() => {
+    syncFiltersToUrl(filters);
+  }, [filters]);
+}
+\`\`\`
+
+**The Core Question:** The \`syncFiltersToUrl\` function runs on almost every render, even when filters haven't visually changed. Why? How would you debug this and resolve it?
+
+**Expected Answer/Approach:**
+*Diagnostic:* The parent component is passing a new object reference (e.g., \`{ type: 'book' }\`) on every render. Because \`useEffect\` relies on strict referential equality (\`===\`), it sees \`filters\` as a "new" dependency every time.
+*Fix:* The candidate should stabilize the object in the parent using \`useMemo\`, or alter the dependency array strings/primitives (e.g., \`filters.type\`, \`filters.category\`).`,
+    hint: 'Referential equality, dependency arrays with objects.',
+  },
+  {
+    id: 176,
+    category: 'debugging',
+    title: 'Misguided Memoization',
+    difficulty: 'mid',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+const List = ({ items }) => {
+  const renderItem = useCallback((item) => <Item data={item} />, []);
+  return <ul>{items.map(renderItem)}</ul>;
+}
+\`\`\`
+
+**The Core Question:** A junior developer added \`useCallback\` here to "improve performance," but it essentially does nothing or might even degrade performance. Explain why.
+
+**Expected Answer/Approach:** 
+\`useCallback\` only preserves the function reference. It does *not* prevent \`<Item>\` from re-rendering unless \`<Item>\` is wrapped in \`React.memo()\`. Furthermore, because the inline arrow function \`(item) => <Item />\` is recreated on every render anyway (and passed into \`useCallback\` just to determine if it should be discarded or kept), we are doing extra closure work for zero performance benefit.`,
+    hint: 'Misuse of useCallback, understanding when memoization actually avoids re-renders.',
+  },
+  {
+    id: 177,
+    category: 'debugging',
+    title: 'Escaping the Stale Priority',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function Timer() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCount(count + 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+}
+\`\`\`
+
+**The Core Question:** This timer stays at \`1\`. Why? What are all the possible ways to fix this, and which is the most robust?
+
+**Expected Answer/Approach:**
+*Diagnostic:* The closure over \`count\` is stale; the interval captures \`count\` as \`0\` permanently because the effect never re-runs due to the empty array.
+*Fixes:* 
+1. Updater function \`setCount(c => c + 1)\`. (Most robust for simple state logic).
+2. Add \`count\` to the dependency array. (Works, but tears down and restarts the timer every second, which is bad).
+3. Use a mutable \`useRef\` to track the latest count, circumventing standard state checks.`,
+    hint: 'Stale closures, useEffect dependencies, useRef escapes.',
+  },
+  {
+    id: 178,
+    category: 'debugging',
+    title: 'Contextual Overload',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+// Somewhere deep in the tree
+const value = useContext(ThemeContext);
+\`\`\`
+
+**The Core Question:** You notice this component deeply nested in the tree re-renders every time any unrelated state in the \`ThemeProvider\` changes. How do you diagnose and fix Context API performance bottlenecks?
+
+**Expected Answer/Approach:**
+*Diagnostic:* If the Provider's \`value\` is created inline (e.g. \`value={{ theme, toggleTheme }}\`), a new object reference is created every render, forcing all consumers to re-render.
+*Fix:* Use \`useMemo\` in the Provider to cache the object reference. If \`theme\` updates rapidly, a senior should suggest splitting state contexts (one for data, one for the setter/dispatch function) or using a granular global state manager like Zustand to prevent unnecessary cascade re-renders.`,
+    hint: 'Context API re-renders, object stabilization.',
+  },
+  {
+    id: 179,
+    category: 'debugging',
+    title: 'Breaking Down a Reducer',
+    difficulty: 'lead',
+    answer: `**The Scenario/Problem:**
+A massive form uses a complex \`useReducer\` to manage 50 fields. Pressing a key in one field causes significant typing lag across the screen.
+
+**The Core Question:** Walk me through your debugging methodology. How do you identify the bottleneck, and what strategies would you use to optimize a large state object managed by \`useReducer\`?
+
+**Expected Answer/Approach:**
+*Approach:* Open React DevTools Profiler, record a keystroke, and observe the flame graph to see which components take the longest to render. 
+*Fix:* With a monolithic state, updating one field re-renders the parent form, which cascades down to all 50 inputs. Solutions include adopting uncontrolled components (using \`useRef\` and \`FormData\` on submit), breaking the reducer down into smaller contexts, wrapping inputs in \`React.memo\` (with stable dispatch functions), or using specialized libraries like React Hook Form.`,
+    hint: 'React DevTools Profiler, form state bottlenecks, uncontrolled components vs controlled.',
+  },
+  {
+    id: 180,
+    category: 'debugging',
+    title: 'Architecting Custom Hooks (The Latest Ref Pattern)',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+You need a custom hook \`useEventListener(eventName, handler, element)\` that attaches an event listener to the window, but you want to ensure the \`handler\` is always up-to-date without aggressively removing and re-adding the listener on the DOM.
+
+**The Core Question:** How would you architect this custom hook to avoid stale closures while preventing constant DOM event binding thrashing?
+
+**Expected Answer/Approach:**
+The candidate should demonstrate using \`useRef\` to save the latest handler. 
+\`\`\`jsx
+const savedHandler = useRef();
+useEffect(() => { savedHandler.current = handler; }, [handler]);
+
+useEffect(() => {
+  const eventListener = (e) => savedHandler.current(e);
+  element.addEventListener(eventName, eventListener);
+  return () => element.removeEventListener(eventName, eventListener);
+}, [eventName, element]);
+\`\`\``,
+    hint: 'useRef for tracking latest callbacks (the "latest ref" pattern).',
+  },
+  {
+    id: 181,
+    category: 'debugging',
+    title: 'The Ghost of isMounted',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+\`\`\`jsx
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    let isMounted = true;
+    fetch(url).then(res => res.json()).then(res => {
+      if (isMounted) setData(res);
+    });
+    return () => { isMounted = false; }
+  }, [url]);
+  return data;
+}
+\`\`\`
+
+**The Core Question:** What React warning is the \`isMounted\` pattern trying to solve, and why is this pattern considered obsolete or insufficient in modern React?
+
+**Expected Answer/Approach:**
+*Diagnostic:* It prevents setting state if the component has unmounted, stopping an old React warning. However, it still allows the network request to finish (wasting bandwidth). 
+*Modern approach:* The candidate should recommend replacing \`isMounted\` entirely with an \`AbortController\` to actively cancel the fetch request upon unmount. They should also note that React 18 removed this specific warning entirely.`,
+    hint: '"Can\'t perform a React state update on an unmounted component" warning, AbortController, React 18 behaviors.',
+  },
+  {
+    id: 182,
+    category: 'debugging',
+    title: 'The Flicker Effect',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+A developer used \`useEffect\` to measure a DOM element's width and adjust a tooltip position, but users report a "flicker" on the screen where the tooltip jumps positions.
+
+**The Core Question:** Explain the mechanics of why the "flicker" happens and how changing it to \`useLayoutEffect\` fixes it? Are there downsides?
+
+**Expected Answer/Approach:**
+*Diagnostic:* \`useEffect\` runs asynchronously *after* the browser paints the screen. The sequence is: Render -> Paint (tooltip temporarily in wrong spot) -> \`useEffect\` runs -> State updates -> Render -> Paint (tooltip in correct spot). This creates a visible flicker. \`useLayoutEffect\` runs synchronously *before* the browser paints, blocking visual updates until the state is resolved.
+*Downside:* Because it blocks painting, heavy logic in \`useLayoutEffect\` will severely degrade the application's perceived performance and delay the First Contentful Paint.`,
+    hint: 'Render phases, painting, synchronous vs asynchronous effects.',
+  },
+  {
+    id: 183,
+    category: 'debugging',
+    title: 'Production-Only Bugs',
+    difficulty: 'lead',
+    answer: `**The Scenario/Problem:**
+An application has a "Cannot read properties of undefined" error happening unpredictably in production, but never locally. 
+
+**The Core Question:** Walk me through a senior engineer's strategy to debug an un-reproducible production error. 
+
+**Expected Answer/Approach:**
+1. **Source Maps & Observability:** Refer to a tool like Sentry to get the exact un-minified stack trace via source maps.
+2. **Environmental Differences:** Scrutinize the data shape (production DB vs local DB). The payload is likely missing relationships or fields that exist strictly in local mock data.
+3. **Third-Party Effects:** Consider ad blockers, analytics scripts, or CDN caching that apply only in production.
+4. **Hydration constraints:** If using Next.js/Remix, investigate if a client/server render capability mismatch is causing it to be undefined strictly on hydration.`,
+    hint: 'Observability, source maps, environmental parity.',
+  },
+  {
+    id: 184,
+    category: 'debugging',
+    title: 'Slicing the Optimization Pie',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+A table rendering 5,000 rows feels sluggish to scroll and causes the entire page to freeze for seconds when applying a sort action.
+
+**The Core Question:** What are the exact steps and tools you would use to determine if the bottleneck is React rendering, DOM layout thrashing, or the JavaScript sorting algorithm?
+
+**Expected Answer/Approach:**
+1. **React Profiler:** Check how long the actual render phase is taking. If the bars are huge and yellow/red, component tree rendering is the bottleneck.
+2. **Chrome Performance Tab (Main Thread):** Looking at the flame chart. If "Recalculate Style" or "Layout" is spiking, it's DOM thrashing. If there is a massive yellow "Scripting" block *before* rendering starts, the sorting algorithm itself is too computationally heavy.
+3. **Resolution:** If rendering is the issue, introduce virtualization (e.g., \`react-virtual\`). If scripting is the issue, move the sort to a Web Worker, or memoize the sort accurately.`,
+    hint: 'Performance profiling, flame graphs, identifying render vs JS execution vs paint costs.',
+  },
+  {
+    id: 185,
+    category: 'debugging',
+    title: 'The Broken Shield',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+You're analyzing a React Profiler recording and notice a component continues to re-render, with the tooltip showing "Parent re-rendered," despite the component being explicitly wrapped in \`React.memo\`.
+
+**The Core Question:** Why did \`React.memo\` fail, and how do you systematically track down the culprit?
+
+**Expected Answer/Approach:**
+*Diagnostic:* \`React.memo\` checks props via shallow equality. If a prop is an object, array, or function instantiated inside the parent's render body, its reference changes on every single parent render, forcing the memoized child to update.
+*Debugging Step:* The candidate would check the parent for inline functions (\`onClick={() => ...}\`) or inline objects (\`style={{...}}\`) being passed to the memoized component. They might also mention using a custom comparison function for \`React.memo\`, or utilizing \`useMemo\`/\`useCallback\` at the parent level to stabilize the references.`,
+    hint: 'React.memo bailing out, strict equality and shallow comparison failures.',
+  },
+  {
+    id: 186,
+    category: 'debugging',
+    title: 'The Keystroke Cascades',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+An input field updates a global Redux/Context state on every single keystroke. 
+
+**The Core Question:** Why is this devastating for performance in a large app, and how do you decouple the input's visual responsiveness from the heavy global update?
+
+**Expected Answer/Approach:**
+*Diagnostic:* Global state updates force React to re-evaluate the entire tree (or heavily re-render connected components) on every keystroke, causing severe typing lag.
+*Fix:* 
+1. Keep the input state strictly local (\`useState\`) so typing re-renders only the input instantly.
+2. Push the result to global state using a debounced effect (e.g., dispatch after 300ms of inactivity).
+3. (Modern React approach): Use \`useDeferredValue\` to keep the input responsive while allowing React to perform the heavy filtering/global updates concurrently at a lower priority.`,
+    hint: 'State scoping, debouncing, concurrent rendering features like useDeferredValue.',
+  },
+  {
+    id: 187,
+    category: 'debugging',
+    title: 'Hunting the Leak',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+You suspect a hidden memory leak because your Single Page Application gets progressively slower over hours of use until the browser eventually crashes.
+
+**The Core Question:** How do you definitively prove a memory leak exists using Chrome DevTools, and how do you trace it back to the specific React component?
+
+**Expected Answer/Approach:**
+1. **Take a Baseline:** Open Chrome DevTools Memory tab and take a Heap Snapshot.
+2. **Replicate Usage:** Perform a high-churn action multiple times (e.g., repeatedly opening and closing an expensive modal).
+3. **Compare Snapshots:** Take a second snapshot and compare the two states. 
+4. **Identify Retainers:** Search for "Detached HTMLDivElement" or specific component names in the heap. Look at the Retainers panel to see what is keeping the object alive. If the retainer points to a global \`window\` event listener or a closure from an unmounted component, that signals the specific culprit.`,
+    hint: 'Chrome Heap Snapshots, detached DOM nodes.',
+  },
+  {
+    id: 188,
+    category: 'debugging',
+    title: 'The Initial Waterfall',
+    difficulty: 'senior',
+    answer: `**The Scenario/Problem:**
+A massive third party Lottie animation and heavy dataset are imported at the top of a Route component, causing a 5-second blank screen on initial page load (High Largest Contentful Paint).
+
+**The Core Question:** How do you debug the loading waterfall, and what React strategies do you apply to optimize it?
+
+**Expected Answer/Approach:**
+*Diagnostic:* Open Network Tab, observing the waterfall metrics. They should spot that the main JS bundle is too large and is blocking rendering out of the gate. Confirm findings using tools like \`webpack-bundle-analyzer\` or \`vite-bundle-visualizer\`.
+*Fix:* 
+- Apply standard code splitting via \`React.lazy()\` and \`Suspense\` for the heavy component imports (like the Lottie player) that aren't hyper-critical for the initial hero paint.
+- Setup preload tags for critical above-the-fold assets.
+- Push heavy data fetching out of the critical rendering path, or leverage Server-Side Rendering (SSR) guaranteeing HTML shells arrive immediately.`,
+    hint: 'Code splitting, lazy loading, suspense, bundle analyzer.',
   },
 
   // ─────────────────────────────────────────────────────────────────

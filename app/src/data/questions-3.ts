@@ -1650,7 +1650,7 @@ function useOnlineStatus() {
   },
 
   // ─────────────────────────────────────────────────────────────────
-  // State Management (8)
+  // State Management (28)
   // ─────────────────────────────────────────────────────────────────
   {
     id: 79,
@@ -2011,5 +2011,423 @@ useCart.subscribe(state => console.log(state));
 
 **Mid-level signal:** Knowing what tool to pick when. Zustand is the modern default for client state in apps that aren't tiny.`,
     hint: 'Lightweight global store with selectors',
+  },
+  {
+    id: 189,
+    category: 'state-management',
+    title: 'What is the practical difference between local and global state?',
+    difficulty: 'junior',
+    answer: `**Local State:**
+Data that is used strictly by one component (and maybe its immediate children).
+- **Tooling:** \`useState\`, \`useReducer\`, or a \`useRef\`.
+- **Examples:** A toggle for a dropdown menu, the current input value of a generic text field, or hover states.
+
+**Global State:**
+Data that must be accessed, updated, or synchronized across multiple, unrelated components spread throughout the component tree.
+- **Tooling:** Context API, Redux, Zustand, Jotai.
+- **Examples:** The authenticated user's session token, the current UI theme (light/dark), or the items in a shopping cart displayed in both a navbar widget and a checkout page.
+
+**When to use each:**
+Always start with **Local State**. Only escalate a piece of state to be **Global** when passing it via props ("prop drilling") becomes painful and multiple distant components genuinely need to interact with it. Defaulting to global state for everything makes the app harder to test and causes unnecessary re-renders.`,
+    hint: 'Local (useState, localized) vs Global (Context/Redux, app-wide).',
+  },
+  {
+    id: 190,
+    category: 'state-management',
+    title: 'What is "Prop Drilling" and how do you avoid it without Redux?',
+    difficulty: 'mid',
+    answer: `**Prop Drilling** is the process of passing data from a high-level component down to deeply nested components through layers of intermediate components that do not actually need the data themselves.
+
+**Why is it bad?**
+It makes the intermediate components brittle and harder to refactor, as they are burdened with props they only act as a conduit for.
+
+**How to avoid it WITHOUT Redux/Global stores:**
+
+1. **Component Composition (Inversion of Control):**
+Instead of passing the *data* down, pass the *component* down as a child using the \`children\` prop.
+\`\`\`jsx
+// Instead of this:
+<Dashboard user={user} />
+// (where Dashboard passes user to Sidebar, which passes it to UserProfile)
+
+// Do this:
+<Dashboard>
+  <Sidebar>
+    <UserProfile user={user} />
+  </Sidebar>
+</Dashboard>
+\`\`\`
+The top-level component holds the state and injects it directly into \`<UserProfile>\`. 
+
+2. **React Context API:**
+For truly global data like themes, locales, or authenticated user data, wrap the subtree in a \`Context.Provider\`. Any nested component can then call \`useContext()\` to grab the value directly, bypassing the intermediate components completely.`,
+    hint: 'Component Composition (children prop) and React Context.',
+  },
+  {
+    id: 191,
+    category: 'state-management',
+    title: 'Atomic vs Proxy vs Selector State (Jotai vs Valtio vs Zustand)',
+    difficulty: 'senior',
+    answer: `**Zustand (Selector-based, Immutable):**
+Operates as a single global store. Components subscribe to specific "slices" of the state using selectors. 
+- **Best for:** Most standard applications. It's the modern replacement for Redux, offering a centralized immutable store without the heavy dispatcher/reducer boilerplate.
+
+**Jotai / Recoil (Atomic):**
+State is broken down into tiny, independent pieces called "atoms". Components subscribe only to the atoms they need. 
+- **Best for:** Applications with heavily derived state (where value C depends on A and B) or massive dashboards with hundreds of independent widgets. It prevents re-render cascading natively because updates are pushed directly from the atom to the subscriber.
+
+**Valtio / MobX (Proxy-based, Mutable):**
+Wraps state in JavaScript Proxies. You can mutate the state directly (\`state.count++\`), and the proxy intercepts the change to trigger a re-render.
+- **Best for:** Applications migrating from heavily object-oriented patterns, games, or WebGL where maintaining strict immutability is computationally expensive or syntactically messy.
+
+**Interview Answer Strategy:**
+"For a generic SaaS, I default to **Zustand**—it's predictable and centralized. If I'm building something like Figma or a complex canvas editor with thousands of independent nodes, I'd pivot to **Jotai** to strictly isolate re-renders at the atomic level."`,
+    hint: 'Zustand (Centralized), Jotai (Independent Atoms), Valtio (Mutable Proxies).',
+  },
+  {
+    id: 192,
+    category: 'state-management',
+    title: 'Architecting State for Scale (Client vs Server vs Ephemeral)',
+    difficulty: 'lead',
+    answer: `**The Scenario:** You're architecting an enterprise dashboard blending real-time WebSocket data, heavily-cached HTTP data, and local draft forms.
+
+**Lead Architect Strategy:**
+A Lead must cleanly separate state boundaries by lifespan and ownership. Blending these into a singular "Global Redux Store" is an anti-pattern that leads to cache invalidation nightmares and UI thrashing.
+
+1. **Server State (HTTP Data):**
+- **Tooling:** React Query (TanStack Query) or SWR. 
+- **Why:** The server owns this data; the client just borrows a snapshot. These tools handle caching, deduplication, background re-validation, and garbage collection automatically.
+
+2. **Real-Time State (WebSockets):**
+- **Tooling:** React Query integration (using \`setQueryData\` to update the cache on socket events) OR a dedicated streaming store if the data velocity is ultra-high (e.g., 60fps stock tickers).
+- **Why:** Real-time data is just an active extension of server state. Piping WebSocket events into the same React Query cache ensures the UI is perfectly consistent.
+
+3. **Client "App" State (Global UX):**
+- **Tooling:** Zustand (or Context if simple).
+- **Why:** Only for data the client truly owns globally: sidebar collapsed state, current selected organization ID, or active dark mode preference.
+
+4. **Ephemeral "Draft" Local State:**
+- **Tooling:** Uncontrolled components (\`useRef\`) or localized \`useState\` / React Hook Form.
+- **Why:** If a user is typing a massive email draft, pushing keystrokes to a global store will thrash the entire App tree. Localizing it keeps the UI perfectly snappy.`,
+    hint: 'Separate server cache (React Query) from client UX state (Zustand) from localized drafts (useState).',
+  },
+  {
+    id: 193,
+    category: 'state-management',
+    title: 'What is the core unidirectional data flow of Redux?',
+    difficulty: 'junior',
+    answer: `The core architecture of Redux revolves around a **strict unidirectional data flow**. It consists of four main pieces:
+
+1. **The Store**: A single JavaScript object that holds the entire state of the application. It acts as the "single source of truth".
+2. **The View**: The React component that reads data from the store via selectors (e.g., \`useSelector\`) to render the UI.
+3. **Actions**: Plain JavaScript objects that describe *what* happened in the application. They must have a \`type\` property (e.g., \`{ type: 'cart/itemAdded', payload: item }\`). When a user interacts with the View, it *dispatches* an action.
+4. **Reducers**: Pure functions that take the current State and an Action, and calculate the *new* State. They are the only way the state can be updated.
+
+**The Flow:** View (User clicks button) -> Action is dispatched -> Reducer calculates new state -> Store updates -> View re-renders with new data.`,
+    hint: 'Strict unidirectional: View -> Action -> Reducer -> Store -> View.',
+  },
+  {
+    id: 194,
+    category: 'state-management',
+    title: 'Why use Redux Toolkit (RTK) over traditional Redux?',
+    difficulty: 'mid',
+    answer: `**Redux Toolkit (RTK)** is the officially recommended approach for writing Redux logic today. It was created to eliminate the massive amounts of boilerplate code associated with "legacy" Redux.
+
+**Key benefits of RTK over traditional Redux:**
+1. **Simplified Configuration:** \`configureStore()\` automatically sets up good defaults, wrapping root reducers and auto-enabling the Redux DevTools extension and Redux Thunk middleware without manual setup.
+2. **"Slices" via \`createSlice\`:** Instead of writing completely separate action types, action creators, and switch-statement reducers, a Slice automatically generates all of them for you based on the reducer functions you provide.
+3. **Immer is built-in:** A massive pain point with legacy Redux was accidentally mutating state or writing deeply nested immutable spread operators. RTK uses the Immer library under the hood, allowing developers to write "mutating" syntax (e.g., \`state.value += 1\`) that is safely tracked and translated into immutable updates.
+4. **Data Fetching:** Includes RTK Query out of the box for handling API data fetching, caching, and polling seamlessly.`,
+    hint: 'RTK eliminates boilerplate via createSlice, configureStore, and automatic Immer immutability.',
+  },
+  {
+    id: 195,
+    category: 'state-management',
+    title: 'How do you prevent unnecessary re-renders with useSelector?',
+    difficulty: 'senior',
+    answer: `React Redux's \`useSelector\` hook will force a component to re-render if the value returned from the selector function changes. Preventing unnecessary renders depends heavily on understanding *referential equality*.
+
+**1. Keep Selectors Granular:**
+Instead of selecting an entire massive object, select exactly the primitive value needed: 
+\`\`\`jsx
+// BAD: re-renders anytime any field on the user object changes
+const user = useSelector(state => state.auth.user);
+// GOOD: only re-renders when the generic name changes
+const userName = useSelector(state => state.auth.user.name);
+\`\`\`
+
+**2. Avoid Returning New Object References:**
+\`\`\`jsx
+// BAD: returns a brand new derived array literal every single render, causing infinite loops / re-renders
+const activeTodos = useSelector(state => state.todos.filter(t => t.active));
+\`\`\`
+Because \`.filter()\` creates a new array reference, \`useSelector\` assumes the data changed.
+
+**3. Use Memoized Selectors (Reselect):**
+To fix the above issue safely, use \`createSelector\` (exported by RTK). It caches the output of an expensive or derived calculation, and only re-runs the calculation (returning a new reference) if its input data *actually* changes.
+\`\`\`jsx
+const selectActiveTodos = createSelector(
+  [state => state.todos],
+  (todos) => todos.filter(t => t.active)
+);
+\`\`\``,
+    hint: 'Granular subscriptions, avoiding new referential returns, and utilizing createSelector (Reselect).',
+  },
+  {
+    id: 196,
+    category: 'state-management',
+    title: 'Redux Thunk vs Redux Saga vs RTK Query for Side Effects',
+    difficulty: 'lead',
+    answer: `**Redux Thunk:**
+- **What it is:** A simple middleware (included by default in RTK) that allows action creators to return a function instead of an object, providing access to \`dispatch\` and \`getState\`.
+- **When to use:** Good for basic side effects, straight-forward REST API calls, or conditional dispatching.
+
+**Redux Saga:**
+- **What it is:** A powerful middleware utilizing ES6 Generators to handle complex asynchronous flows.
+- **When to use:** Crucial for complex, event-driven enterprise architectures that require long-running background processes. Perfect for handling WebSocket streams, complex cancellation logic (e.g., user navigates away mid-download), throttling, debouncing, or race conditions. The trade-off is a steep learning curve and boilerplate.
+
+**RTK Query:**
+- **What it is:** A purpose-built data fetching and caching tool included in Redux Toolkit.
+- **When to use:** It has aggressively replaced Thunks/Sagas for standard API communication. It automatically handles deduplication, caching, optimistic updates, and loading states without writing *any* reducers or actions manually.
+
+**Lead Assessment:** "For 90% of modern API-fetching needs, use **RTK Query**. Use **Thunks** for simple, non-API asynchronous Redux mutations. Only pull in **Redux Saga** for extreme enterprise use cases involving intense, un-abortable coordination flows (e.g., complex fintech transactions or persistent socket pooling)."`,
+    hint: 'RTK Query for API fetching/cache, Thunk for simple logic, Saga for complex/long-running gen-based flows.',
+  },
+  {
+    id: 197,
+    category: 'state-management',
+    title: 'React-Redux Bridging: Hooks vs Connect',
+    difficulty: 'junior',
+    answer: `Historically, React components were bridged to the Redux store using the Higher-Order Component (HOC) \`connect(mapStateToProps, mapDispatchToProps)\`. 
+
+In modern React, this has been almost entirely replaced by two hooks provided by the \`react-redux\` library:
+1. **\`useSelector(selectorFn)\`**: Subscribes the component to specific pieces of the Redux store state. The component re-renders automatically when the extracted state changes.
+2. **\`useDispatch()\`**: Returns the store's \`dispatch\` function, allowing the component to dispatch actions directly.
+
+\`\`\`jsx
+// Modern Component
+function Counter() {
+  const value = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
+  return <button onClick={() => dispatch({ type: 'increment' })}>{value}</button>;
+}
+\`\`\`
+Hooks are preferred because they strictly align with modern functional component architecture and avoid the "wrapper hell" associated with heavily nested HOCs.`,
+    hint: 'useSelector to read state, useDispatch to trigger actions. connect() is legacy.',
+  },
+  {
+    id: 198,
+    category: 'state-management',
+    title: 'Reducer Architecture and combineReducers',
+    difficulty: 'junior',
+    answer: `The Redux store requires a single "root" reducer function to calculate the entire state tree. However, keeping all state logic in one massive function is unmaintainable.
+
+**\`combineReducers\`** is a utility function used to break down the root reducer into smaller, modular slices. Each slice only calculates its own portion of the state tree.
+
+\`\`\`javascript
+const rootReducer = combineReducers({
+  users: usersReducer,
+  posts: postsReducer,
+  auth: authReducer
+});
+// State shape becomes: { users: {...}, posts: {...}, auth: {...} }
+\`\`\`
+
+When an action is dispatched, \`combineReducers\` calls *every* slice reducer with the current state of its slice and the action. If the reducer recognizes the action, it returns a new state; otherwise, it returns the current state.`,
+    hint: 'Splits the root reducer into modular slices managing their own domain state.',
+  },
+  {
+    id: 199,
+    category: 'state-management',
+    title: 'The Purpose of Redux Middleware',
+    difficulty: 'junior',
+    answer: `**Redux Middleware** sits directly between the dispatching of an action and the moment that action reaches the reducer. 
+
+**Core Purposes:**
+1. **Intercepting Actions:** Middleware can pause, modify, delay, or completely swallow an action before it ever hits the reducer.
+2. **Handling Side Effects:** Because Reducers must be strictly synchronous and pure, you cannot do things like make API calls or interact with LocalStorage inside a reducer. Middleware (like Redux Thunk or Saga) provides a safe space to run this impure, asynchronous logic.
+3. **Application Logging & Analytics:** Middleware is the perfect place to log every action/state change globally (e.g., \`redux-logger\`) or dispatch analytics events automatically without cluttering UI components.`,
+    hint: 'Intercepts actions before reducers. Handles async side effects, logging, or modifying actions.',
+  },
+  {
+    id: 200,
+    category: 'state-management',
+    title: 'Redux DevTools and Time-Travel Debugging',
+    difficulty: 'mid',
+    answer: `The **Redux DevTools Extension** is a powerful debugging tool that gives developers full visibility into the current state tree, every action that has been dispatched, and the exact state diff that occurred from that action.
+
+**Time-Travel Debugging:**
+Because Redux state updates are strictly immutable and predictable, the DevTools can record a history array of every state snapshot over time. 
+"Time-traveling" is the ability to literally scrub backward through this history timeline. When you jump back to state #3, the DevTools forcefully replaces the application's current state with snapshot #3, allowing the developer to instantly see exactly what the UI looked like at that exact moment without reloading the page or manually recreating the sequence of events.`,
+    hint: 'Records a stream of immutable state snapshots. Jumps force the app UI to retroactively load a past snapshot.',
+  },
+  {
+    id: 201,
+    category: 'state-management',
+    title: 'Normalizing State Shape in Redux',
+    difficulty: 'mid',
+    answer: `**Normalizing State** means structuring your Redux data similarly to a relational database to prevent duplication and massive UI performance issues.
+
+Instead of storing data in deeply nested arrays (\`[{ id: 1, author: { id: 5, name: 'John'} }]\`), you break the data apart by "Entities" stored in dictionaries (objects keyed by ID).
+
+\`\`\`javascript
+// Normalized Pattern
+{
+  posts: {
+    byId: { '1': { id: 1, title: 'Hello', authorId: '5' } },
+    allIds: ['1']
+  },
+  authors: {
+    byId: { '5': { id: 5, name: 'John' } },
+    allIds: ['5']
+  }
+}
+\`\`\`
+
+**Why is this important?**
+1. **Prevents Duplication:** If author '5' updates their name, you update it in exactly *one* place, and all components referring to author '5' update instantly.
+2. **Avoids Deep Rendering Thrashing:** If you have an array of 5,000 posts and update one deeply nested property, React must shallow-compare massive trees. With normalized data, components can subscribe instantly to \`state.authors.byId['5']\` without caring about the rest of the array.`,
+    hint: 'Storing entities by ID in dictionaries to prevent data duplication and deeply nested array iteration.',
+  },
+  {
+    id: 202,
+    category: 'state-management',
+    title: 'Testing Redux (Reducers and Actions)',
+    difficulty: 'mid',
+    answer: `Testing standard Redux logic is uniquely straightforward because its core architecture is built entirely on pure functions.
+
+**1. Testing Reducers:**
+Reducers are pure functions. They take an initial state and an action, and return a *new* state. You do not need to mock Redux, React, or the DOM. You simply pass in an object and assert the expected output object.
+\`\`\`javascript
+test('should handle ADD_TODO', () => {
+  const previousState = { items: [] };
+  const action = { type: 'ADD_TODO', payload: 'Buy milk' };
+  expect(reducer(previousState, action)).toEqual({ items: ['Buy milk'] });
+});
+\`\`\`
+
+**2. Testing Action Creators:**
+Similarly, standard action creators just return plain Javascript objects. You simply execute the function and assert it returns the correct signature.
+\`\`\`javascript
+test('should create ADD_TODO action', () => {
+  expect(addTodo('Buy milk')).toEqual({ type: 'ADD_TODO', payload: 'Buy milk' });
+});
+\`\`\``,
+    hint: 'Pure functions make testing trivial. Pass in state/action, assert structural output without mocking.',
+  },
+  {
+    id: 203,
+    category: 'state-management',
+    title: 'Flux Standard Action (FSA) Convention',
+    difficulty: 'mid',
+    answer: `The **Flux Standard Action (FSA)** is a community convention designed to make Redux actions strictly uniform and predictable across an enormous codebase.
+
+An action ONLY qualifies as a Flux Standard Action if it is a plain JavaScript object that:
+1. **MUST** have a \`type\` property (typically a string).
+2. **MAY** have a \`payload\` property (the actual data being transferred).
+3. **MAY** have an \`error\` property (a boolean set to true if the payload represents an error object).
+4. **MAY** have a \`meta\` property (extra info that is not part of the payload, e.g., analytics flags).
+5. **MUST NOT** include any other properties outside of these four.
+
+\`\`\`javascript
+// Valid FSA
+{
+  type: 'FETCH_USER_FAILED',
+  payload: new Error('Network timeout'),
+  error: true,
+  meta: { retryTracked: true }
+}
+\`\`\`
+(Redux Toolkit heavily enforces and leverages the FSA pattern out of the box).`,
+    hint: 'Strict action schema: type, payload, error, meta. No other root properties allowed.',
+  },
+  {
+    id: 204,
+    category: 'state-management',
+    title: 'RTK Query: Automated Cache Invalidation',
+    difficulty: 'senior',
+    answer: `RTK Query utilizes a sophisticated, tag-based automated cache invalidation system to trigger seamless background refetching without manually dispatching actions. 
+
+1. **\`providesTags\` (Query Endpoints):** When an API endpoint fetches data (like a list of \`Users\`), you "tag" that cached data in the store (e.g., \`providesTags: ['User']\`).
+2. **\`invalidatesTags\` (Mutation Endpoints):** When an update goes to the server (like a POST request creating a new user), you configure the mutation to invalidate the corresponding tag (e.g., \`invalidatesTags: ['User']\`).
+
+When the mutation succeeds, RTK Query sees the \`'User'\` tag was invalidated. It instantly looks at its cache, finds *any* active queries on the page that provided the \`'User'\` tag, and automatically re-fetches those queries in the background, updating the UI instantly with the fresh data.`,
+    hint: 'Tag-based caching system (providesTags / invalidatesTags) automates background refetching upon successful mutations.',
+  },
+  {
+    id: 205,
+    category: 'state-management',
+    title: 'Redux and Server-Side Rendering (SSR)',
+    difficulty: 'senior',
+    answer: `Integrating Redux with SSR (Next.js/Remix) dramatically shifts how the Redux Store must be initialized. 
+
+**The Golden Rule of SSR Redux:**
+You **MUST** create a brand new, isolated Redux Store instance for *every single incoming server request*. 
+
+**Why?**
+If you define the store directly at the module level (\`const store = configureStore()\`), a Node.js server maintains that module in memory permanently. If User A logs in and populates the store, when User B connects an hour later, they will be served the exact same memory instance—causing catastrophic cross-request data leaks where User B sees User A's private data!
+
+**The Flow:**
+1. Server receives request.
+2. Server creates a fresh Redux store.
+3. Server dispatches actions to fetch required data into the fresh store.
+4. Server renders the app to HTML using this store.
+5. The state is serialized and injected into a script tag globally (e.g., \`window.__INITIAL_STATE__\`).
+6. The client picks up that frozen state object on hydration and completely bootstraps the client-side store with it.`,
+    hint: 'Create a unique store per-request to prevent severe cross-user memory leakage. Hydrate client state from server dump.',
+  },
+  {
+    id: 206,
+    category: 'state-management',
+    title: 'Redux Persist and Offline Capabilities',
+    difficulty: 'senior',
+    answer: `**Redux Persist** is a library that automatically writes your Redux store to a storage engine (like \`localStorage\` or IndexedDB) and re-hydrates the Redux store from disk when the application loads, enabling offline-readiness.
+
+**Severe Performance Implications to Watch For:**
+1. **Rehydration Blocking:** Reading massive JSON blobs from \`localStorage\` is synchronous and extremely slow. If your store has 20MB of dense normalized relational data, Redux Persist can severely delay the initial render paint of the application.
+2. **Thrashing the Storage Engine:** Every single dispatched action triggers Redux Persist to serialize and commit the state buffer to disk. If you dispatch rapid consecutive actions (e.g., syncing keystrokes into Redux), you will relentlessly serialize/write to disk, destroying browser performance and causing severe frame lag.
+
+**The Fix:**
+- Use **whitelists** and **blacklists**. Only persist critical offline data (like user auth tokens or shopping carts), discarding non-essential UI state.
+- Aggressively **debounce** state saves (using a timeout) so rapid actions don't thrash local storage.`,
+    hint: 'Rehydrating blocks initial renders. Rapid dispatches thrash disk serialization. Fix via whitelists & heavy debouncing.',
+  },
+  {
+    id: 207,
+    category: 'state-management',
+    title: 'Designing Redux for Micro-Frontends',
+    difficulty: 'lead',
+    answer: `**The Scenario:** A federated architecture where multiple separate React applications load onto a single DOM page.
+
+**Lead Architect Strategy:**
+Sharing a single, monolithic Redux store across fully isolated micro-frontends directly couples them and completely defeats the architectural purpose of micro-frontends (isolated deployments and decoupled boundaries).
+
+**1. The Strict Isolation Method:**
+Each micro-frontend completely mounts its *own* independent Redux \`<Provider>\` strictly bound to its own internal store. They act as total black boxes. 
+
+**2. Bridging the Gap (Event Bus Pattern):**
+If Micro-Frontend A (Cart) needs to know when Micro-Frontend B (Product Listing) adds an item, they should communicate via a generic, decoupled **Custom Event Bus** (e.g., \`window.dispatchEvent\`). 
+Micro-Frontend A listens for the \`ITEM_ADDED\` native event, and acts upon it by dispatching a localized internal action to its *own* private Redux store. 
+
+This guarantees that if Team A pushes a breaking change to their Redux payload structure, Team B isn't instantly broken by a forcefully shared global store dependency.`,
+    hint: 'Strict isolation. Separate Redux providers bridged by window Custom Events to maintain decoupled deploy boundaries.',
+  },
+  {
+    id: 208,
+    category: 'state-management',
+    title: 'Profiling a Severely Lagging Redux App',
+    difficulty: 'lead',
+    answer: `**The Scenario:** A developer complains that hitting a simple "Toggle Checked" action takes 200ms to resolve. A Lead must systematically identify the exact bottleneck.
+
+1. **Step 1: The Redux DevTools Performance Tab.**
+Open Redux DevTools and scrutinize the literal action dispatch cost. If the DevTools shows the *Reducer* took 150ms to process the action, the bottleneck is in Redux itself. The developer is likely doing a brutal, non-indexed iterate/clone operation over a massive 15,000 item array instead of utilizing $O(1)$ dictionary lookups (normalized state).
+
+2. **Step 2: Scrutinizing Middleware Chains.**
+If the reducer takes 2ms, check the middleware chain. Is there a rogue middleware attempting monstrous synchronous serialization (like Redux Persist trying to deep-clone the entire payload to \`localStorage\` on every keystroke)? 
+
+3. **Step 3: React DOM Thrashing (The most common issue).**
+If Redux itself took 3ms, the issue is downstream in React. Open the **React DevTools Profiler** and record exactly what occurred after the action. 
+You will almost certainly see massive tracts of the component tree flashing yellow/red. This means the components are deeply subscribed to the root store instead of granularly subscribing to pieces, or derived selectors are constantly returning *new* object references (breaking shallow equality checks), forcefully triggering full React subtree re-renders.`,
+    hint: '1: DevTools to isolate Reducer iteration lag. 2: Middleware checks for aggressive disk serialization. 3: React Profiler to catch brutal useSelector re-renders.',
   },
 ];

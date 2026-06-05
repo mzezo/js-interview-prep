@@ -2196,7 +2196,7 @@ const selectActiveTodos = createSelector(
   {
     id: 197,
     category: 'state-management',
-    title: 'React-Redux Bridging: Hooks vs Connect',
+    title: 'State Architecture: Hooks vs Connect (Redux)',
     difficulty: 'junior',
     answer: `Historically, React components were bridged to the Redux store using the Higher-Order Component (HOC) \`connect(mapStateToProps, mapDispatchToProps)\`. 
 
@@ -2252,7 +2252,7 @@ When an action is dispatched, \`combineReducers\` calls *every* slice reducer wi
   {
     id: 200,
     category: 'state-management',
-    title: 'Redux DevTools and Time-Travel Debugging',
+    title: 'State Architecture: Redux DevTools & Time-Travel',
     difficulty: 'mid',
     answer: `The **Redux DevTools Extension** is a powerful debugging tool that gives developers full visibility into the current state tree, every action that has been dispatched, and the exact state diff that occurred from that action.
 

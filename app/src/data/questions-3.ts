@@ -808,7 +808,7 @@ function Posts() {
     hint: 'Declarative loading states',
   },
   {
-    id: 185,
+    id: 67,
     category: 'react-core',
     title: 'What does JSX actually compile to?',
     difficulty: 'junior',
@@ -861,7 +861,7 @@ The return value at runtime is just a tree of objects, roughly:
     hint: 'Syntactic sugar over React.createElement / _jsx',
   },
   {
-    id: 186,
+    id: 68,
     category: 'react-core',
     title: 'React.memo — when does it actually help (and when does it not)?',
     difficulty: 'senior',
@@ -928,7 +928,7 @@ const Chart = memo(InnerChart, (prev, next) => prev.data.version === next.data.v
     hint: 'Shallow prop-equality bailout — easy to defeat',
   },
   {
-    id: 187,
+    id: 69,
     category: 'react-core',
     title: 'Lifting state up — when, how, and what to avoid',
     difficulty: 'mid',
@@ -998,7 +998,7 @@ Both inputs are now **fully controlled** by \`Calculator\`. Typing in either upd
     hint: 'Move shared state to the closest common ancestor',
   },
   {
-    id: 188,
+    id: 70,
     category: 'react-core',
     title: 'Hydration in SSR — what is it and what can go wrong?',
     difficulty: 'senior',
@@ -1079,7 +1079,7 @@ function Now() {
   // React Hooks (12)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 67,
+    id: 71,
     category: 'react-hooks',
     title: 'What are the Rules of Hooks and why?',
     difficulty: 'mid',
@@ -1126,7 +1126,7 @@ function Component({ user }) {
     hint: 'Call order matters; never conditional',
   },
   {
-    id: 68,
+    id: 72,
     category: 'react-hooks',
     title: 'useState — initializer function vs value',
     difficulty: 'mid',
@@ -1170,7 +1170,7 @@ If you actually want \`values\` to track \`initialValues\`, you usually want a \
     hint: 'Function = lazy = runs once',
   },
   {
-    id: 69,
+    id: 73,
     category: 'react-hooks',
     title: 'useEffect dependency arrays — common mistakes',
     difficulty: 'mid',
@@ -1219,7 +1219,7 @@ Fix: \`return () => window.removeEventListener('resize', onResize);\`
     hint: 'Stale closures, unstable deps, missing cleanup',
   },
   {
-    id: 70,
+    id: 74,
     category: 'react-hooks',
     title: 'When to use useReducer over useState',
     difficulty: 'mid',
@@ -1269,7 +1269,7 @@ const [state, dispatch] = useReducer(reducer, { loading: false, data: null, erro
     hint: 'Multi-field state with related transitions',
   },
   {
-    id: 71,
+    id: 75,
     category: 'react-hooks',
     title: 'useMemo vs useCallback',
     difficulty: 'mid',
@@ -1315,7 +1315,7 @@ useEffect(() => fetcher(options), [options]); // doesn't re-fire each render
     hint: 'Cache value vs cache function',
   },
   {
-    id: 72,
+    id: 76,
     category: 'react-hooks',
     title: 'useRef — three legitimate uses',
     difficulty: 'mid',
@@ -1365,7 +1365,7 @@ If the value should appear in UI, it's state. If it's truly internal, ref is fin
     hint: 'DOM, mutable non-state, instance values',
   },
   {
-    id: 73,
+    id: 77,
     category: 'react-hooks',
     title: 'Custom hooks — when and how to write them',
     difficulty: 'mid',
@@ -1413,7 +1413,7 @@ function Search() {
     hint: 'Share logic, not UI',
   },
   {
-    id: 74,
+    id: 78,
     category: 'react-hooks',
     title: 'useLayoutEffect vs useEffect',
     difficulty: 'mid',
@@ -1455,7 +1455,7 @@ If you used \`useEffect\` here, the user would see the tooltip flicker at \`(0,0
     hint: 'Layout = synchronous + before paint',
   },
   {
-    id: 75,
+    id: 79,
     category: 'react-hooks',
     title: 'useContext — when to split contexts',
     difficulty: 'mid',
@@ -1509,7 +1509,7 @@ Without memoization, the \`{}\` literal is new every render → all consumers re
     hint: 'Split by frequency, memoize value',
   },
   {
-    id: 76,
+    id: 80,
     category: 'react-hooks',
     title: 'useTransition vs useDeferredValue',
     difficulty: 'senior',
@@ -1551,7 +1551,7 @@ const results = useMemo(() => filter(allItems, deferredQuery), [deferredQuery]);
     hint: 'Transition = at source, Deferred = at consumer',
   },
   {
-    id: 77,
+    id: 81,
     category: 'react-hooks',
     title: 'useImperativeHandle — when do you need it?',
     difficulty: 'senior',
@@ -1594,7 +1594,7 @@ fancyRef.current.style.color = 'red'; // undefined — DOM not exposed
     hint: 'Expose custom API, not DOM',
   },
   {
-    id: 78,
+    id: 82,
     category: 'react-hooks',
     title: 'useSyncExternalStore — what is it for?',
     difficulty: 'senior',
@@ -1653,7 +1653,7 @@ function useOnlineStatus() {
   // State Management (28)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 79,
+    id: 83,
     category: 'state-management',
     title: 'How would you decide where state lives?',
     difficulty: 'mid',
@@ -1689,7 +1689,7 @@ Is the state...
     hint: 'Match tool to lifecycle + scope',
   },
   {
-    id: 80,
+    id: 84,
     category: 'state-management',
     title: 'When should you reach for Redux?',
     difficulty: 'mid',
@@ -1739,7 +1739,7 @@ dispatch(cartSlice.actions.addItem(newItem));
     hint: 'Complex shared state with audit trail',
   },
   {
-    id: 81,
+    id: 85,
     category: 'state-management',
     title: 'React Query vs SWR vs writing your own',
     difficulty: 'mid',
@@ -1786,7 +1786,7 @@ const { data, isLoading, error } = useQuery({
     hint: 'Server state needs cache + dedup + refetch',
   },
   {
-    id: 82,
+    id: 86,
     category: 'state-management',
     title: 'When should state live in the URL?',
     difficulty: 'mid',
@@ -1834,7 +1834,7 @@ const setStatus = (newStatus) => {
     hint: 'Refresh-safe, shareable, back-button',
   },
   {
-    id: 83,
+    id: 87,
     category: 'state-management',
     title: 'Optimistic updates — how to implement them',
     difficulty: 'mid',
@@ -1889,7 +1889,7 @@ const mutation = useMutation({
     hint: 'Update now, rollback on error',
   },
   {
-    id: 84,
+    id: 88,
     category: 'state-management',
     title: 'Designing state for a paginated, filterable, sortable table',
     difficulty: 'senior',
@@ -1921,7 +1921,7 @@ const mutation = useMutation({
     hint: 'Categorize by lifecycle',
   },
   {
-    id: 85,
+    id: 89,
     category: 'state-management',
     title: 'What is "lifting state up" and when not to do it',
     difficulty: 'junior',
@@ -1965,7 +1965,7 @@ const mutation = useMutation({
     hint: 'Lift to closest common ancestor',
   },
   {
-    id: 86,
+    id: 90,
     category: 'state-management',
     title: 'What problem does Zustand solve?',
     difficulty: 'mid',
@@ -2013,7 +2013,7 @@ useCart.subscribe(state => console.log(state));
     hint: 'Lightweight global store with selectors',
   },
   {
-    id: 189,
+    id: 91,
     category: 'state-management',
     title: 'What is the practical difference between local and global state?',
     difficulty: 'junior',
@@ -2032,7 +2032,7 @@ Always start with **Local State**. Only escalate a piece of state to be **Global
     hint: 'Local (useState, localized) vs Global (Context/Redux, app-wide).',
   },
   {
-    id: 190,
+    id: 92,
     category: 'state-management',
     title: 'What is "Prop Drilling" and how do you avoid it without Redux?',
     difficulty: 'mid',
@@ -2064,7 +2064,7 @@ For truly global data like themes, locales, or authenticated user data, wrap the
     hint: 'Component Composition (children prop) and React Context.',
   },
   {
-    id: 191,
+    id: 93,
     category: 'state-management',
     title: 'Atomic vs Proxy vs Selector State (Jotai vs Valtio vs Zustand)',
     difficulty: 'senior',
@@ -2085,7 +2085,7 @@ Wraps state in JavaScript Proxies. You can mutate the state directly (\`state.co
     hint: 'Zustand (Centralized), Jotai (Independent Atoms), Valtio (Mutable Proxies).',
   },
   {
-    id: 192,
+    id: 94,
     category: 'state-management',
     title: 'Architecting State for Scale (Client vs Server vs Ephemeral)',
     difficulty: 'lead',
@@ -2112,7 +2112,7 @@ A Lead must cleanly separate state boundaries by lifespan and ownership. Blendin
     hint: 'Separate server cache (React Query) from client UX state (Zustand) from localized drafts (useState).',
   },
   {
-    id: 193,
+    id: 95,
     category: 'state-management',
     title: 'What is the core unidirectional data flow of Redux?',
     difficulty: 'junior',
@@ -2127,7 +2127,7 @@ A Lead must cleanly separate state boundaries by lifespan and ownership. Blendin
     hint: 'Strict unidirectional: View -> Action -> Reducer -> Store -> View.',
   },
   {
-    id: 194,
+    id: 96,
     category: 'state-management',
     title: 'Why use Redux Toolkit (RTK) over traditional Redux?',
     difficulty: 'mid',
@@ -2141,7 +2141,7 @@ A Lead must cleanly separate state boundaries by lifespan and ownership. Blendin
     hint: 'RTK eliminates boilerplate via createSlice, configureStore, and automatic Immer immutability.',
   },
   {
-    id: 195,
+    id: 97,
     category: 'state-management',
     title: 'How do you prevent unnecessary re-renders with useSelector?',
     difficulty: 'senior',
@@ -2174,7 +2174,7 @@ const selectActiveTodos = createSelector(
     hint: 'Granular subscriptions, avoiding new referential returns, and utilizing createSelector (Reselect).',
   },
   {
-    id: 196,
+    id: 98,
     category: 'state-management',
     title: 'Redux Thunk vs Redux Saga vs RTK Query for Side Effects',
     difficulty: 'lead',
@@ -2194,7 +2194,7 @@ const selectActiveTodos = createSelector(
     hint: 'RTK Query for API fetching/cache, Thunk for simple logic, Saga for complex/long-running gen-based flows.',
   },
   {
-    id: 197,
+    id: 99,
     category: 'state-management',
     title: 'State Architecture: Hooks vs Connect (Redux)',
     difficulty: 'junior',
@@ -2216,7 +2216,7 @@ Hooks are preferred because they strictly align with modern functional component
     hint: 'useSelector to read state, useDispatch to trigger actions. connect() is legacy.',
   },
   {
-    id: 198,
+    id: 100,
     category: 'state-management',
     title: 'Reducer Architecture and combineReducers',
     difficulty: 'junior',
@@ -2237,7 +2237,7 @@ When an action is dispatched, \`combineReducers\` calls *every* slice reducer wi
     hint: 'Splits the root reducer into modular slices managing their own domain state.',
   },
   {
-    id: 199,
+    id: 101,
     category: 'state-management',
     title: 'The Purpose of Redux Middleware',
     difficulty: 'junior',
@@ -2250,7 +2250,7 @@ When an action is dispatched, \`combineReducers\` calls *every* slice reducer wi
     hint: 'Intercepts actions before reducers. Handles async side effects, logging, or modifying actions.',
   },
   {
-    id: 200,
+    id: 102,
     category: 'state-management',
     title: 'State Architecture: Redux DevTools & Time-Travel',
     difficulty: 'mid',
@@ -2262,7 +2262,7 @@ Because Redux state updates are strictly immutable and predictable, the DevTools
     hint: 'Records a stream of immutable state snapshots. Jumps force the app UI to retroactively load a past snapshot.',
   },
   {
-    id: 201,
+    id: 103,
     category: 'state-management',
     title: 'Normalizing State Shape in Redux',
     difficulty: 'mid',
@@ -2290,7 +2290,7 @@ Instead of storing data in deeply nested arrays (\`[{ id: 1, author: { id: 5, na
     hint: 'Storing entities by ID in dictionaries to prevent data duplication and deeply nested array iteration.',
   },
   {
-    id: 202,
+    id: 104,
     category: 'state-management',
     title: 'Testing Redux (Reducers and Actions)',
     difficulty: 'mid',
@@ -2316,7 +2316,7 @@ test('should create ADD_TODO action', () => {
     hint: 'Pure functions make testing trivial. Pass in state/action, assert structural output without mocking.',
   },
   {
-    id: 203,
+    id: 105,
     category: 'state-management',
     title: 'Flux Standard Action (FSA) Convention',
     difficulty: 'mid',
@@ -2342,7 +2342,7 @@ An action ONLY qualifies as a Flux Standard Action if it is a plain JavaScript o
     hint: 'Strict action schema: type, payload, error, meta. No other root properties allowed.',
   },
   {
-    id: 204,
+    id: 106,
     category: 'state-management',
     title: 'RTK Query: Automated Cache Invalidation',
     difficulty: 'senior',
@@ -2355,7 +2355,7 @@ When the mutation succeeds, RTK Query sees the \`'User'\` tag was invalidated. I
     hint: 'Tag-based caching system (providesTags / invalidatesTags) automates background refetching upon successful mutations.',
   },
   {
-    id: 205,
+    id: 107,
     category: 'state-management',
     title: 'Redux and Server-Side Rendering (SSR)',
     difficulty: 'senior',
@@ -2377,7 +2377,7 @@ If you define the store directly at the module level (\`const store = configureS
     hint: 'Create a unique store per-request to prevent severe cross-user memory leakage. Hydrate client state from server dump.',
   },
   {
-    id: 206,
+    id: 108,
     category: 'state-management',
     title: 'Redux Persist and Offline Capabilities',
     difficulty: 'senior',
@@ -2393,7 +2393,7 @@ If you define the store directly at the module level (\`const store = configureS
     hint: 'Rehydrating blocks initial renders. Rapid dispatches thrash disk serialization. Fix via whitelists & heavy debouncing.',
   },
   {
-    id: 207,
+    id: 109,
     category: 'state-management',
     title: 'Designing Redux for Micro-Frontends',
     difficulty: 'lead',
@@ -2413,7 +2413,7 @@ This guarantees that if Team A pushes a breaking change to their Redux payload s
     hint: 'Strict isolation. Separate Redux providers bridged by window Custom Events to maintain decoupled deploy boundaries.',
   },
   {
-    id: 208,
+    id: 110,
     category: 'state-management',
     title: 'Profiling a Severely Lagging Redux App',
     difficulty: 'lead',

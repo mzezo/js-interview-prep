@@ -5,7 +5,7 @@ export const questions: Question[] = [
   // Closure deep dives (4)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 136,
+    id: 184,
     category: 'fundamentals',
     title: 'Closure with var in a for-loop — why all callbacks log the final value',
     difficulty: 'mid',
@@ -76,7 +76,7 @@ Each iteration gets a brand-new variable, so each closure captures a different o
     hint: 'var = one binding for all; let = fresh per iteration',
   },
   {
-    id: 137,
+    id: 185,
     category: 'fundamentals',
     title: 'Closures and memory — when do they leak?',
     difficulty: 'senior',
@@ -149,7 +149,7 @@ If \`node\` later gets removed from the DOM but this returned function is kept a
     hint: 'Closures retain their full scope; narrow what you capture',
   },
   {
-    id: 138,
+    id: 186,
     category: 'fundamentals',
     title: 'Build a private counter using closures — and then the modern alternatives',
     difficulty: 'mid',
@@ -226,7 +226,7 @@ Symbols are *unenumerable by default* but discoverable. They prevent accidents, 
     hint: 'Closure → #fields → WeakMap; Symbol & TS private are conventions',
   },
   {
-    id: 139,
+    id: 187,
     category: 'fundamentals',
     title: 'Currying with closures — partial application explained',
     difficulty: 'mid',
@@ -310,7 +310,7 @@ Both rely on closures to remember the bound arguments.
   // Execution context & runtime model (3)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 140,
+    id: 188,
     category: 'fundamentals',
     title: 'What is the execution context? Walk through the call stack',
     difficulty: 'senior',
@@ -391,7 +391,7 @@ Each call pushes a frame; without a base case, the stack runs out (typically ~10
     hint: 'Variable env + lexical env + this + realm; stack tracks frames',
   },
   {
-    id: 141,
+    id: 189,
     category: 'fundamentals',
     title: 'Hoisting — what actually moves, and what doesn\'t',
     difficulty: 'mid',
@@ -478,7 +478,7 @@ foo(); // undefined — bar is hoisted, return runs before assignment
     hint: 'var → undefined; let/const → TDZ; function decl → full body',
   },
   {
-    id: 142,
+    id: 190,
     category: 'fundamentals',
     title: 'Strict mode — what changes and why it matters',
     difficulty: 'mid',
@@ -564,7 +564,7 @@ const m = 0755;  // SyntaxError
   // Event loop deep dives (3)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 143,
+    id: 191,
     category: 'event-loop',
     title: 'Microtasks vs macrotasks — predict the output',
     difficulty: 'senior',
@@ -637,7 +637,7 @@ evil();
     hint: 'Sync → all microtasks → one macrotask → repeat',
   },
   {
-    id: 144,
+    id: 192,
     category: 'event-loop',
     title: 'How does the browser schedule rendering relative to JS?',
     difficulty: 'senior',
@@ -723,7 +723,7 @@ If JS runs for >50ms in one synchronous chunk, browsers flag it as a "Long Task"
     hint: 'Macrotask → microtasks → rAF → render → idle',
   },
   {
-    id: 145,
+    id: 193,
     category: 'event-loop',
     title: 'What does Promise.all vs allSettled vs any vs race actually do?',
     difficulty: 'mid',
@@ -821,7 +821,7 @@ ctrl.abort(); // cancel the other request
   // Promise execution & async patterns (3)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 146,
+    id: 194,
     category: 'event-loop',
     title: 'Promise lifecycle — pending, fulfilled, rejected, and chaining',
     difficulty: 'mid',
@@ -937,7 +937,7 @@ Either await it, return it (so the caller handles), or attach a \`.catch\`.`,
     hint: 'Pending → fulfilled/rejected (immutable); each then returns a NEW promise',
   },
   {
-    id: 147,
+    id: 195,
     category: 'event-loop',
     title: 'async/await — what it desugars to and where it bites',
     difficulty: 'mid',
@@ -1057,7 +1057,7 @@ Once a function is async, all its callers either need to be async or handle the 
     hint: 'Sequential awaits = serial; Promise.all = parallel; await needs async',
   },
   {
-    id: 148,
+    id: 196,
     category: 'event-loop',
     title: 'How to add a timeout to any promise',
     difficulty: 'mid',
@@ -1152,7 +1152,7 @@ The \`clearTimeout\` matters — without it, the timer holds a reference and Nod
   // Garbage collection & memory (2)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 149,
+    id: 197,
     category: 'fundamentals',
     title: 'How does JavaScript garbage collection work?',
     difficulty: 'senior',
@@ -1243,7 +1243,7 @@ obj = null;
     hint: 'Reachability from roots; mark-sweep; generational; WeakMap for opt-in weakness',
   },
   {
-    id: 150,
+    id: 198,
     category: 'fundamentals',
     title: 'WeakMap and WeakRef — when to use them',
     difficulty: 'senior',
@@ -1354,7 +1354,7 @@ Use cases: closing native handles, releasing WASM memory, removing entries from 
   // Modules (2)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 151,
+    id: 199,
     category: 'fundamentals',
     title: 'ESM vs CommonJS — semantic differences',
     difficulty: 'senior',
@@ -1471,7 +1471,7 @@ import data from './data.json' with { type: 'json' };
     hint: 'CJS = sync, dynamic, snapshots; ESM = async, static, live bindings',
   },
   {
-    id: 152,
+    id: 200,
     category: 'fundamentals',
     title: 'Dynamic import and circular dependencies',
     difficulty: 'mid',
@@ -1577,7 +1577,7 @@ If \`a.js\` and \`b.js\` import from \`index.js\` (instead of from each other di
   // Generators & Iterators (2)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 153,
+    id: 201,
     category: 'fundamentals',
     title: 'Iterators and the iteration protocol',
     difficulty: 'mid',
@@ -1672,7 +1672,7 @@ But the *iterable* (the array) is reusable; you get a fresh iterator each time y
     hint: 'Iterator: { next: () => { value, done } }; Iterable: [Symbol.iterator]() returns iterator',
   },
   {
-    id: 154,
+    id: 202,
     category: 'fundamentals',
     title: 'Generators — lazy sequences and bidirectional communication',
     difficulty: 'senior',
@@ -1830,7 +1830,7 @@ Combines generators with promises — perfect for streaming.
   // `this` keyword (3)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 155,
+    id: 203,
     category: 'fundamentals',
     title: '`this` — six rules to determine its value',
     difficulty: 'mid',
@@ -1945,7 +1945,7 @@ Result: \`['A', 'A', undefined, 'A']\`
     hint: 'this depends on call site: method/standalone/new/bind/arrow/class',
   },
   {
-    id: 156,
+    id: 204,
     category: 'fundamentals',
     title: 'Arrow vs regular functions — when does it matter?',
     difficulty: 'mid',
@@ -2072,7 +2072,7 @@ const l = new Logger();
     hint: 'Arrow: no own this/arguments/new/prototype; regular for methods, ctors, generators',
   },
   {
-    id: 157,
+    id: 205,
     category: 'fundamentals',
     title: 'Implement Function.prototype.bind from scratch',
     difficulty: 'senior',
@@ -2166,7 +2166,7 @@ The \`Symbol\` trick: temporarily attach the function to \`context\` so that cal
   // Map / Set deep dive (1)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 158,
+    id: 206,
     category: 'arrays-objects',
     title: 'Map vs Object, Set vs Array — when to use each',
     difficulty: 'mid',
@@ -2267,7 +2267,7 @@ If you want value equality, you\'d need a custom keying scheme (serialize to a s
   // Object.freeze and immutability (1)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 159,
+    id: 207,
     category: 'arrays-objects',
     title: 'Object.freeze, seal, preventExtensions — and their depth',
     difficulty: 'mid',
@@ -2381,7 +2381,7 @@ obj.method.foo = 1;   // ✅ allowed; the function itself isn\'t frozen
   // Proxies & Reflect (2)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 160,
+    id: 208,
     category: 'fundamentals',
     title: 'Proxy and Reflect — what can you intercept?',
     difficulty: 'senior',
@@ -2524,7 +2524,7 @@ Without \`receiver\`, getters would see the original object, bypassing the proxy
     hint: 'Proxy = trap fundamental ops; Reflect = forward defaults with correct receiver',
   },
   {
-    id: 161,
+    id: 209,
     category: 'fundamentals',
     title: 'When does a Proxy NOT work as expected?',
     difficulty: 'senior',
@@ -2646,7 +2646,7 @@ Wrapping arbitrary objects in proxies that happen to expose \`then\` can confuse
   // Array manipulation (3)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 162,
+    id: 210,
     category: 'arrays-objects',
     title: 'Mutating vs non-mutating array methods (and the new copy methods)',
     difficulty: 'mid',
@@ -2764,7 +2764,7 @@ Array.of(7);                        // [7]  (vs new Array(7) which is length 7)
     hint: 'sort/reverse/splice mutate; toSorted/toReversed/toSpliced/with for immutability',
   },
   {
-    id: 163,
+    id: 211,
     category: 'arrays-objects',
     title: 'reduce — patterns and pitfalls',
     difficulty: 'mid',
@@ -2886,7 +2886,7 @@ const compose = (...fns) => (x) => fns.reduceRight((acc, fn) => fn(acc), x);
     hint: 'Always pass initialValue; mutate the acc; prefer map/filter for clarity',
   },
   {
-    id: 164,
+    id: 212,
     category: 'arrays-objects',
     title: 'Array-like objects and the iterable protocol',
     difficulty: 'mid',

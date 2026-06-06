@@ -12,7 +12,7 @@ export const questions: Question[] = [
     // ── Junior (4) ──────────────────────────────────────────────────
 
     {
-        id: 165,
+        id: 213,
         category: 'typescript',
         title: 'What is TypeScript and why use it over plain JavaScript?',
         difficulty: 'junior',
@@ -44,7 +44,7 @@ function greet(name: string): string {
         hint: 'Static types, compile-time safety, better DX',
     },
     {
-        id: 166,
+        id: 214,
         category: 'typescript',
         title: 'What is the difference between `interface` and `type`?',
         difficulty: 'junior',
@@ -94,7 +94,7 @@ type User = { email: string }; // ❌ Error
         hint: 'Merging, unions, flexibility',
     },
     {
-        id: 167,
+        id: 215,
         category: 'typescript',
         title: 'What are the basic types in TypeScript?',
         difficulty: 'junior',
@@ -160,7 +160,7 @@ function process(input: unknown) {
         hint: 'Primitives, any vs unknown, tuples, enums',
     },
     {
-        id: 168,
+        id: 216,
         category: 'typescript',
         title: 'What are type assertions and when should you use them?',
         difficulty: 'junior',
@@ -217,7 +217,7 @@ Use sparingly — it silences the compiler and will crash at runtime if you're w
     // ── Mid (6) ─────────────────────────────────────────────────────
 
     {
-        id: 169,
+        id: 217,
         category: 'typescript',
         title: 'Explain generics with practical examples',
         difficulty: 'mid',
@@ -293,7 +293,7 @@ const [theme, setTheme] = useLocalStorage('theme', 'dark');
         hint: 'Type parameters, constraints, keyof',
     },
     {
-        id: 170,
+        id: 218,
         category: 'typescript',
         title: 'What are union and intersection types?',
         difficulty: 'mid',
@@ -363,7 +363,7 @@ Both achieve composition, but \`&\` can create "impossible" types (e.g., \`strin
         hint: 'Union = OR, intersection = AND, discriminants narrow',
     },
     {
-        id: 171,
+        id: 219,
         category: 'typescript',
         title: 'What are TypeScript utility types?',
         difficulty: 'mid',
@@ -429,7 +429,7 @@ type FailStates = Exclude<Status, 'success'>; // 'loading' | 'error'
         hint: 'Partial, Pick, Omit, Record, ReturnType',
     },
     {
-        id: 172,
+        id: 220,
         category: 'typescript',
         title: 'What are type guards and how do you write custom ones?',
         difficulty: 'mid',
@@ -519,7 +519,7 @@ function isApiError(result: ApiResult<unknown>): result is ApiError {
         hint: 'typeof, instanceof, in, custom predicates',
     },
     {
-        id: 173,
+        id: 221,
         category: 'typescript',
         title: 'How do enums work and when should you avoid them?',
         difficulty: 'mid',
@@ -593,7 +593,7 @@ type Direction = typeof Direction[keyof typeof Direction];
         hint: 'Numeric vs string, const enum, prefer string unions',
     },
     {
-        id: 174,
+        id: 222,
         category: 'typescript',
         title: 'Explain `keyof`, `typeof`, and indexed access types',
         difficulty: 'mid',
@@ -657,7 +657,7 @@ type DbHost = Config['db']['host']; // string
     // ── Senior (6) ──────────────────────────────────────────────────
 
     {
-        id: 175,
+        id: 223,
         category: 'typescript',
         title: 'How do conditional types work?',
         difficulty: 'senior',
@@ -722,7 +722,7 @@ type Strings = FilterByType<string | number | boolean, string>;
         hint: 'extends ? : ternary, distributive unions, infer',
     },
     {
-        id: 176,
+        id: 224,
         category: 'typescript',
         title: 'What are mapped types and how do you use them?',
         difficulty: 'senior',
@@ -795,7 +795,7 @@ type LoginErrors = FormErrors<LoginForm>;
         hint: 'Iterate keys with [K in keyof T], remap with as',
     },
     {
-        id: 177,
+        id: 225,
         category: 'typescript',
         title: 'What are discriminated unions and exhaustiveness checking?',
         difficulty: 'senior',
@@ -870,7 +870,7 @@ function reducer(state: State, action: Action): State {
         hint: 'Common tag + switch + never for exhaustiveness',
     },
     {
-        id: 178,
+        id: 226,
         category: 'typescript',
         title: 'Explain template literal types',
         difficulty: 'senior',
@@ -933,7 +933,7 @@ type CSSProperty = \`\${'margin' | 'padding'}-\${'top' | 'right' | 'bottom' | 'l
         hint: 'String-level type computation with template syntax',
     },
     {
-        id: 179,
+        id: 227,
         category: 'typescript',
         title: 'How does declaration merging work?',
         difficulty: 'senior',
@@ -1012,7 +1012,7 @@ declare module 'express' {
         hint: 'Same-name interfaces merge; module augmentation extends libs',
     },
     {
-        id: 180,
+        id: 228,
         category: 'typescript',
         title: 'What is the difference between `unknown` and `any`? When do you use `never`?',
         difficulty: 'senior',
@@ -1088,7 +1088,7 @@ unknown (top — every type is assignable TO unknown)
     // ── Lead (4) ────────────────────────────────────────────────────
 
     {
-        id: 181,
+        id: 229,
         category: 'typescript',
         title: 'Design a fully type-safe event emitter using mapped and conditional types',
         difficulty: 'lead',
@@ -1172,7 +1172,7 @@ onAny(handler: <K extends keyof Events>(event: K, payload: Events[K]) => void): 
         hint: 'Event map → generic class → keyof constraints → compile-time safety',
     },
     {
-        id: 182,
+        id: 230,
         category: 'typescript',
         title: 'How do you build a type-safe deep path accessor?',
         difficulty: 'lead',
@@ -1239,7 +1239,7 @@ type Paths<T, D extends number = 5> = [D] extends [0] ? never : /* ... */;
         hint: 'Recursive template literals + infer for path extraction',
     },
     {
-        id: 183,
+        id: 231,
         category: 'typescript',
         title: 'How would you set up TypeScript in a large monorepo?',
         difficulty: 'lead',
@@ -1337,7 +1337,7 @@ tsc --build --clean      # clears incremental caches
         hint: 'Project references, composite, shared base config, tsc --build',
     },
     {
-        id: 184,
+        id: 232,
         category: 'typescript',
         title: 'How do you migrate a large JavaScript codebase to TypeScript?',
         difficulty: 'lead',

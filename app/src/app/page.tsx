@@ -227,7 +227,7 @@ export default function HomePage() {
           ) : (
             <ul className="space-y-3">
               {filteredQuestions.map((q) => (
-                <li key={q.id}>
+                <li key={`${q.category}-${q.id}`}>
                   <QuestionCard
                     question={q}
                     expanded={expandedIds.has(q.id)}

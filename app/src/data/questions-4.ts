@@ -5,7 +5,7 @@ export const questions: Question[] = [
   // Performance (10)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 87,
+    id: 111,
     category: 'performance',
     title: 'How do you profile a slow React app?',
     difficulty: 'mid',
@@ -41,7 +41,7 @@ Common categories:
     hint: 'Profiler → Performance tab → Lighthouse',
   },
   {
-    id: 88,
+    id: 112,
     category: 'performance',
     title: 'React.memo — when does it actually help?',
     difficulty: 'mid',
@@ -87,7 +87,7 @@ If you're writing custom comparators, reconsider — usually means props are wro
     hint: 'Memo + stable props or skip it',
   },
   {
-    id: 89,
+    id: 113,
     category: 'performance',
     title: 'Code splitting in React',
     difficulty: 'mid',
@@ -146,7 +146,7 @@ function Dashboard() {
     hint: 'lazy + Suspense per route',
   },
   {
-    id: 90,
+    id: 114,
     category: 'performance',
     title: 'Virtualizing long lists',
     difficulty: 'mid',
@@ -194,7 +194,7 @@ const Row = ({ index, style }) => (
     hint: 'react-window: only render visible',
   },
   {
-    id: 91,
+    id: 115,
     category: 'performance',
     title: 'Largest Contentful Paint (LCP) — what affects it?',
     difficulty: 'senior',
@@ -244,7 +244,7 @@ const Row = ({ index, style }) => (
     hint: 'TTFB + render-blocking + image optimization',
   },
   {
-    id: 92,
+    id: 116,
     category: 'performance',
     title: 'Cumulative Layout Shift (CLS) — how to avoid it',
     difficulty: 'mid',
@@ -289,7 +289,7 @@ const Row = ({ index, style }) => (
     hint: 'Reserve space; use transform not layout props',
   },
   {
-    id: 93,
+    id: 117,
     category: 'performance',
     title: 'Bundle size — what to measure and reduce',
     difficulty: 'mid',
@@ -352,7 +352,7 @@ const Chart = await import('./Chart');
     hint: 'Analyze, replace, split, tree-shake',
   },
   {
-    id: 94,
+    id: 118,
     category: 'performance',
     title: 'Why is my search input laggy?',
     difficulty: 'mid',
@@ -408,7 +408,7 @@ Otherwise, every parent render re-renders every row.
     hint: 'Debounce + memo filter + virtualize',
   },
   {
-    id: 95,
+    id: 119,
     category: 'performance',
     title: 'Web Workers — when and how?',
     difficulty: 'senior',
@@ -460,7 +460,7 @@ const result = await api.compute(input); // looks like a normal async call
     hint: 'Separate thread for heavy compute',
   },
   {
-    id: 96,
+    id: 120,
     category: 'performance',
     title: 'Image optimization checklist',
     difficulty: 'mid',
@@ -519,7 +519,7 @@ const result = await api.compute(input); // looks like a normal async call
   // Testing (8)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 97,
+    id: 121,
     category: 'testing',
     title: 'The testing pyramid — what to test where',
     difficulty: 'mid',
@@ -567,7 +567,7 @@ const result = await api.compute(input); // looks like a normal async call
     hint: 'Pyramid: 70/25/5 unit/integration/E2E',
   },
   {
-    id: 98,
+    id: 122,
     category: 'testing',
     title: 'Test a controlled form with React Testing Library',
     difficulty: 'mid',
@@ -636,7 +636,7 @@ describe('LoginForm', () => {
     hint: 'Query by role + userEvent',
   },
   {
-    id: 99,
+    id: 123,
     category: 'testing',
     title: 'How to mock fetch / network in tests?',
     difficulty: 'mid',
@@ -699,7 +699,7 @@ it('handles network error', async () => {
     hint: 'MSW intercepts at network layer',
   },
   {
-    id: 100,
+    id: 124,
     category: 'testing',
     title: 'Test a custom hook',
     difficulty: 'mid',
@@ -764,7 +764,7 @@ await waitFor(() => expect(result.current.data).toBeDefined());
     hint: 'renderHook + act',
   },
   {
-    id: 101,
+    id: 125,
     category: 'testing',
     title: 'When to use snapshot tests?',
     difficulty: 'mid',
@@ -802,7 +802,7 @@ expect(screen.getByRole('button', { name: 'Log in' })).toBeEnabled();
     hint: 'Use sparingly; explicit assertions usually win',
   },
   {
-    id: 102,
+    id: 126,
     category: 'testing',
     title: 'E2E with Playwright — basics',
     difficulty: 'mid',
@@ -847,7 +847,7 @@ await page.route('**/api/users', route => {
     hint: 'Real browser, semantic locators, auto-wait',
   },
   {
-    id: 103,
+    id: 127,
     category: 'testing',
     title: 'Why does my test pass locally but fail in CI?',
     difficulty: 'mid',
@@ -898,7 +898,7 @@ beforeEach(() => {
     hint: 'Timing, isolation, time, env',
   },
   {
-    id: 104,
+    id: 128,
     category: 'testing',
     title: 'What should you actually NOT test?',
     difficulty: 'mid',
@@ -957,7 +957,7 @@ If a function is so simple a bug couldn't hide, the test is overhead.
   // Debugging (32)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 105,
+    id: 129,
     category: 'debugging',
     title: 'How would you debug a memory leak in a React app?',
     difficulty: 'senior',
@@ -1013,7 +1013,7 @@ useEffect(() => {
     hint: 'Heap snapshots + missing cleanup',
   },
   {
-    id: 106,
+    id: 130,
     category: 'debugging',
     title: 'Race condition in async useEffect',
     difficulty: 'mid',
@@ -1074,7 +1074,7 @@ useEffect(() => {
     hint: 'Cancel old requests on dep change',
   },
   {
-    id: 107,
+    id: 131,
     category: 'debugging',
     title: 'Infinite render loop — diagnose and fix',
     difficulty: 'mid',
@@ -1137,7 +1137,7 @@ Fix: \`useCallback\`, lift state, or rethink whether onMount-triggers-setState i
     hint: 'setState in render OR unstable deps',
   },
   {
-    id: 108,
+    id: 132,
     category: 'debugging',
     title: 'Stale closure — what is it and how to fix?',
     difficulty: 'mid',
@@ -1200,7 +1200,7 @@ useEffect(() => {
     hint: 'Captured variable doesn\'t update',
   },
   {
-    id: 109,
+    id: 133,
     category: 'debugging',
     title: 'Component renders 5 times when it should render once',
     difficulty: 'mid',
@@ -1261,7 +1261,7 @@ function App() {
     hint: 'Profiler tells you why; fix per cause',
   },
   {
-    id: 110,
+    id: 134,
     category: 'debugging',
     title: 'How to debug "Cannot update a component while rendering a different component"',
     difficulty: 'mid',
@@ -1315,7 +1315,7 @@ Fix: hook should defer the setState into useEffect.
     hint: 'setState in render → effects or derive',
   },
   {
-    id: 111,
+    id: 135,
     category: 'debugging',
     title: 'Why does my CSS have specificity wars?',
     difficulty: 'mid',
@@ -1371,7 +1371,7 @@ Layer order > specificity. Solves the war structurally.
     hint: 'Specificity scores; @layer or single class',
   },
   {
-    id: 112,
+    id: 136,
     category: 'debugging',
     title: 'Source maps in production — should you ship them?',
     difficulty: 'mid',
@@ -1426,7 +1426,7 @@ export default {
     hint: 'Yes for monitoring, hidden for security',
   },
   {
-    id: 165,
+    id: 137,
     category: 'debugging',
     title: 'How to debug "TypeError: Cannot read properties of undefined (reading \'x\')"?',
     difficulty: 'junior',
@@ -1471,7 +1471,7 @@ return <div>{user.profile.age}</div>;
     hint: 'Trace the line, check if the variable before the dot exists, use optional chaining.',
   },
   {
-    id: 166,
+    id: 138,
     category: 'debugging',
     title: 'What are your go-to DevTools features beyond console.log?',
     difficulty: 'mid',
@@ -1504,7 +1504,7 @@ Check the "Preserve log" box in the console to retain logs across page navigatio
     hint: 'debugger, console.table, Network throttling, DOM breakpoints, preserve log.',
   },
   {
-    id: 167,
+    id: 139,
     category: 'debugging',
     title: 'How do you narrow down a bug that only happens in production, not locally?',
     difficulty: 'senior',
@@ -1532,7 +1532,7 @@ Use Source Maps on your error reporting tool (like Datadog/Sentry) to read the s
     hint: 'Build in prod mode locally, check data shapes, hydration issues, caches, and third-party scripts.',
   },
   {
-    id: 168,
+    id: 140,
     category: 'debugging',
     title: 'Describe your methodology for leading a team through a P0 production incident.',
     difficulty: 'lead',
@@ -1564,7 +1564,7 @@ Use Source Maps on your error reporting tool (like Datadog/Sentry) to read the s
     hint: 'Roles (IC, SMEs), mitigation over fix-forward, methodical hypothesis generation, blameless post-mortem.',
   },
   {
-    id: 169,
+    id: 141,
     category: 'debugging',
     title: 'The "Double Increment" Illusion',
     difficulty: 'junior',
@@ -1588,7 +1588,7 @@ function Counter() {
     hint: 'React state batching, stale closures in event handlers, the updater function pattern.',
   },
   {
-    id: 170,
+    id: 142,
     category: 'debugging',
     title: 'The Infinite Network Loop',
     difficulty: 'junior',
@@ -1613,7 +1613,7 @@ function UserProfile({ userId }) {
     hint: 'useEffect missing dependency arrays, infinite re-renders.',
   },
   {
-    id: 171,
+    id: 143,
     category: 'debugging',
     title: 'State vs Props Synchronization',
     difficulty: 'junior',
@@ -1633,7 +1633,7 @@ function ItemList({ items }) {
     hint: 'Initializing state from props, derived state anti-patterns.',
   },
   {
-    id: 172,
+    id: 144,
     category: 'debugging',
     title: 'The Invisible State Update',
     difficulty: 'junior',
@@ -1653,7 +1653,7 @@ const updateName = () => {
     hint: 'React state immutability, object reference equality.',
   },
   {
-    id: 173,
+    id: 145,
     category: 'debugging',
     title: 'The Ghost Interval',
     difficulty: 'junior',
@@ -1672,7 +1672,7 @@ useEffect(() => {
     hint: 'useEffect cleanup functions, memory leaks from timers and event listeners.',
   },
   {
-    id: 174,
+    id: 146,
     category: 'debugging',
     title: 'The Async Race Condition',
     difficulty: 'senior',
@@ -1696,7 +1696,7 @@ function Search() {
     hint: 'Race conditions with async operations in useEffect.',
   },
   {
-    id: 175,
+    id: 147,
     category: 'debugging',
     title: 'The Phantom Object Dependency',
     difficulty: 'senior',
@@ -1718,7 +1718,7 @@ const SearchConfig = ({ filters }) => {
     hint: 'Referential equality, dependency arrays with objects.',
   },
   {
-    id: 176,
+    id: 148,
     category: 'debugging',
     title: 'Misguided Memoization',
     difficulty: 'mid',
@@ -1737,7 +1737,7 @@ const List = ({ items }) => {
     hint: 'Misuse of useCallback, understanding when memoization actually avoids re-renders.',
   },
   {
-    id: 177,
+    id: 149,
     category: 'debugging',
     title: 'Escaping the Stale Priority',
     difficulty: 'senior',
@@ -1766,7 +1766,7 @@ function Timer() {
     hint: 'Stale closures, useEffect dependencies, useRef escapes.',
   },
   {
-    id: 178,
+    id: 150,
     category: 'debugging',
     title: 'Contextual Overload',
     difficulty: 'senior',
@@ -1784,7 +1784,7 @@ const value = useContext(ThemeContext);
     hint: 'Context API re-renders, object stabilization.',
   },
   {
-    id: 179,
+    id: 151,
     category: 'debugging',
     title: 'Breaking Down a Reducer',
     difficulty: 'lead',
@@ -1799,7 +1799,7 @@ A massive form uses a complex \`useReducer\` to manage 50 fields. Pressing a key
     hint: 'React DevTools Profiler, form state bottlenecks, uncontrolled components vs controlled.',
   },
   {
-    id: 180,
+    id: 152,
     category: 'debugging',
     title: 'Architecting Custom Hooks (The Latest Ref Pattern)',
     difficulty: 'senior',
@@ -1823,7 +1823,7 @@ useEffect(() => {
     hint: 'useRef for tracking latest callbacks (the "latest ref" pattern).',
   },
   {
-    id: 181,
+    id: 153,
     category: 'debugging',
     title: 'The Ghost of isMounted',
     difficulty: 'senior',
@@ -1850,7 +1850,7 @@ function useFetch(url) {
     hint: '"Can\'t perform a React state update on an unmounted component" warning, AbortController, React 18 behaviors.',
   },
   {
-    id: 182,
+    id: 154,
     category: 'debugging',
     title: 'The Flicker Effect',
     difficulty: 'senior',
@@ -1865,7 +1865,7 @@ A developer used \`useEffect\` to measure a DOM element's width and adjust a too
     hint: 'Render phases, painting, synchronous vs asynchronous effects.',
   },
   {
-    id: 183,
+    id: 155,
     category: 'debugging',
     title: 'Production-Only Bugs',
     difficulty: 'lead',
@@ -1882,7 +1882,7 @@ An application has a "Cannot read properties of undefined" error happening unpre
     hint: 'Observability, source maps, environmental parity.',
   },
   {
-    id: 184,
+    id: 156,
     category: 'debugging',
     title: 'Slicing the Optimization Pie',
     difficulty: 'senior',
@@ -1898,7 +1898,7 @@ A table rendering 5,000 rows feels sluggish to scroll and causes the entire page
     hint: 'Performance profiling, flame graphs, identifying render vs JS execution vs paint costs.',
   },
   {
-    id: 185,
+    id: 157,
     category: 'debugging',
     title: 'The Broken Shield',
     difficulty: 'senior',
@@ -1913,7 +1913,7 @@ You're analyzing a React Profiler recording and notice a component continues to 
     hint: 'React.memo bailing out, strict equality and shallow comparison failures.',
   },
   {
-    id: 186,
+    id: 158,
     category: 'debugging',
     title: 'The Keystroke Cascades',
     difficulty: 'senior',
@@ -1931,7 +1931,7 @@ An input field updates a global Redux/Context state on every single keystroke.
     hint: 'State scoping, debouncing, concurrent rendering features like useDeferredValue.',
   },
   {
-    id: 187,
+    id: 159,
     category: 'debugging',
     title: 'Hunting the Leak',
     difficulty: 'senior',
@@ -1948,7 +1948,7 @@ You suspect a hidden memory leak because your Single Page Application gets progr
     hint: 'Chrome Heap Snapshots, detached DOM nodes.',
   },
   {
-    id: 188,
+    id: 160,
     category: 'debugging',
     title: 'The Initial Waterfall',
     difficulty: 'senior',
@@ -1970,7 +1970,7 @@ A massive third party Lottie animation and heavy dataset are imported at the top
   // Networking & HTTP (8)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 113,
+    id: 161,
     category: 'networking',
     title: 'HTTP status codes — the ones you must know',
     difficulty: 'junior',
@@ -2006,7 +2006,7 @@ A massive third party Lottie animation and heavy dataset are imported at the top
     hint: 'Memorize 401 vs 403',
   },
   {
-    id: 114,
+    id: 162,
     category: 'networking',
     title: 'CORS — explain it and how to fix common errors',
     difficulty: 'mid',
@@ -2042,7 +2042,7 @@ A massive third party Lottie animation and heavy dataset are imported at the top
     hint: 'Browser blocks; server opts in',
   },
   {
-    id: 115,
+    id: 163,
     category: 'networking',
     title: 'Cookies vs localStorage for auth tokens',
     difficulty: 'mid',
@@ -2091,7 +2091,7 @@ Set-Cookie: token=abc123;
     hint: 'HttpOnly cookies > localStorage',
   },
   {
-    id: 116,
+    id: 164,
     category: 'networking',
     title: 'Cache-Control headers explained',
     difficulty: 'mid',
@@ -2150,7 +2150,7 @@ If-None-Match: "abc123"
     hint: 'no-cache = revalidate; no-store = never cache',
   },
   {
-    id: 117,
+    id: 165,
     category: 'networking',
     title: 'REST vs GraphQL — when to choose which',
     difficulty: 'mid',
@@ -2192,7 +2192,7 @@ If-None-Match: "abc123"
     hint: 'REST = simple + cached; GraphQL = flexible queries',
   },
   {
-    id: 118,
+    id: 166,
     category: 'networking',
     title: 'WebSocket vs Server-Sent Events vs long polling',
     difficulty: 'mid',
@@ -2243,7 +2243,7 @@ sse.onmessage = (e) => console.log(e.data);
     hint: 'WS = bidirectional; SSE = one-way push',
   },
   {
-    id: 119,
+    id: 167,
     category: 'networking',
     title: 'CSRF — what is it and how do you prevent it?',
     difficulty: 'mid',
@@ -2290,7 +2290,7 @@ Browsers default to \`Lax\` if unspecified — significant CSRF protection out o
     hint: 'SameSite cookies + CSRF tokens',
   },
   {
-    id: 120,
+    id: 168,
     category: 'networking',
     title: '"Failed to fetch" — diagnostic ladder',
     difficulty: 'mid',
@@ -2342,7 +2342,7 @@ Browsers default to \`Lax\` if unspecified — significant CSRF protection out o
   // System Design (8)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 121,
+    id: 169,
     category: 'system-design',
     title: 'Frontend system design — the framework',
     difficulty: 'mid',
@@ -2389,7 +2389,7 @@ Browsers default to \`Lax\` if unspecified — significant CSRF protection out o
     hint: 'Clarify → architecture → deep dive → trade-offs',
   },
   {
-    id: 122,
+    id: 170,
     category: 'system-design',
     title: 'Design infinite scroll for a feed of 1M items',
     difficulty: 'mid',
@@ -2439,7 +2439,7 @@ const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     hint: 'Cursor pagination + virtualization + scroll restore',
   },
   {
-    id: 123,
+    id: 171,
     category: 'system-design',
     title: 'Design real-time collaboration (Google Docs lite)',
     difficulty: 'senior',
@@ -2506,7 +2506,7 @@ const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     hint: 'CRDT + WebSocket + local-first',
   },
   {
-    id: 124,
+    id: 172,
     category: 'system-design',
     title: 'Design a search with filters, autocomplete, and history',
     difficulty: 'mid',
@@ -2571,7 +2571,7 @@ const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     hint: 'URL state + React Query + debounce + virtualize',
   },
   {
-    id: 125,
+    id: 173,
     category: 'system-design',
     title: 'Where do feature flags belong in a frontend architecture?',
     difficulty: 'senior',
@@ -2630,7 +2630,7 @@ const showNewCheckout = useFlag('new-checkout');
     hint: 'Server-resolve + client-hydrate; cleanup discipline',
   },
   {
-    id: 126,
+    id: 174,
     category: 'system-design',
     title: 'SSR vs SSG vs CSR vs ISR — when to use which',
     difficulty: 'senior',
@@ -2674,7 +2674,7 @@ const showNewCheckout = useFlag('new-checkout');
     hint: 'Match strategy to content dynamism + SEO needs',
   },
   {
-    id: 127,
+    id: 175,
     category: 'system-design',
     title: 'Designing for accessibility — what to mention',
     difficulty: 'mid',
@@ -2727,7 +2727,7 @@ const showNewCheckout = useFlag('new-checkout');
     hint: 'Semantic HTML + keyboard + ARIA + design system',
   },
   {
-    id: 128,
+    id: 176,
     category: 'system-design',
     title: 'Designing offline-first: what to consider',
     difficulty: 'senior',
@@ -2789,7 +2789,7 @@ const showNewCheckout = useFlag('new-checkout');
   // Behavioral (7)
   // ─────────────────────────────────────────────────────────────────
   {
-    id: 129,
+    id: 177,
     category: 'behavioral',
     title: 'Tell me about a time you disagreed with a teammate',
     difficulty: 'mid',
@@ -2824,7 +2824,7 @@ Vague, no specifics, no reflection.
     hint: 'STAR + Reflection; specific numbers',
   },
   {
-    id: 130,
+    id: 178,
     category: 'behavioral',
     title: 'Tell me about a production incident you owned',
     difficulty: 'mid',
@@ -2866,7 +2866,7 @@ Vague, no specifics, no reflection.
     hint: 'Triage → mitigate → root cause → postmortem',
   },
   {
-    id: 131,
+    id: 179,
     category: 'behavioral',
     title: 'Tell me about a project that failed',
     difficulty: 'mid',
@@ -2908,7 +2908,7 @@ Vague, no specifics, no reflection.
     hint: 'Own the failure, extract behavioral lessons',
   },
   {
-    id: 132,
+    id: 180,
     category: 'behavioral',
     title: 'How do you handle being given an ambiguous task?',
     difficulty: 'mid',
@@ -2941,7 +2941,7 @@ Vague, no specifics, no reflection.
     hint: 'Clarify goal → bound scope → spike → decide → ship',
   },
   {
-    id: 133,
+    id: 181,
     category: 'behavioral',
     title: 'How do you mentor or share knowledge?',
     difficulty: 'mid',
@@ -2975,7 +2975,7 @@ Vague, no specifics, no reflection.
     hint: 'Onboarding, ADRs, reviews, talks — pick concrete examples',
   },
   {
-    id: 134,
+    id: 182,
     category: 'behavioral',
     title: 'Why are you leaving your current job?',
     difficulty: 'junior',
@@ -3010,7 +3010,7 @@ Vague, no specifics, no reflection.
     hint: 'Frame as growth pull, not push',
   },
   {
-    id: 135,
+    id: 183,
     category: 'behavioral',
     title: 'Do you have any questions for us?',
     difficulty: 'junior',

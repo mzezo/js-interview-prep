@@ -1,0 +1,73 @@
+Found 24 duplicate IDs
+ID 165:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 166:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 167:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 168:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 169:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 170:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 171:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 172:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 173:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 174:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 175:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 176:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 177:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 178:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 179:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 180:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 181:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 182:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 183:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 184:
+  - questions-6.ts (typescript)
+  - questions-4.ts (debugging)
+ID 185:
+  - questions-3.ts (react-core)
+  - questions-4.ts (debugging)
+ID 186:
+  - questions-3.ts (react-core)
+  - questions-4.ts (debugging)
+ID 187:
+  - questions-3.ts (react-core)
+  - questions-4.ts (debugging)
+ID 188:
+  - questions-3.ts (react-core)
+  - questions-4.ts (debugging)
